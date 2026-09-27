@@ -1,6 +1,6 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { STUDIO_KINDS } from "@/lib/studio/kinds";
-import { LANGUAGE_CODES, DEFAULT_LANGUAGE, isEnglish, localeLabel } from "@/lib/i18n/languages";
+import { LANGUAGE_CODES, DEFAULT_LANGUAGE, isEnglish, localeLabel, servedBySarvam } from "@/lib/i18n/languages";
 import { scoreDraft } from "@/lib/content/craft";
 import { localeCraft } from "@/lib/content/craft-locale";
 import { CONTENT_FORMATS } from "@/lib/content/compose";
@@ -68,20 +68,27 @@ describe("all 8 cards reach the real pipeline", () => {
   });
 });
 
-describe("all 11 languages behave correctly end to end", () => {
-  it("has exactly the eleven we support", () => {
-    expect(LANGUAGE_CODES).toHaveLength(11);
+describe("every language behaves correctly end to end", () => {
+  it("labels every code it offers", () => {
+    // Not a count. The table grew past the original eleven when Europe, Africa and
+    // Southeast Asia were added, and asserting a number only records when that last
+    // happened.
+    expect(LANGUAGE_CODES.length).toBeGreaterThan(1);
+    expect(new Set(LANGUAGE_CODES).size).toBe(LANGUAGE_CODES.length);
     for (const c of LANGUAGE_CODES) expect(localeLabel(c).length, c).toBeGreaterThan(2);
   });
 
   for (const code of LANGUAGE_CODES.filter((c) => !isEnglish(c))) {
-    it(`${code}: native instruction, Sarvam preferred, own cache identity`, async () => {
+    it(`${code}: native instruction, own cache identity, provider matched to the language`, async () => {
       const { calls } = await compose({ language: code });
       const prompt = calls[0].body;
       expect(prompt, code).toContain("WRITE IN");
       expect(prompt, code).toMatch(/natively, not translated/);
-      // Sarvam is preferred for Indian-language work — and only preferred, see below.
-      expect(calls[0].url, code).toContain("api.sarvam.ai");
+      // Sarvam is preferred only where Sarvam is trained. Sending French to an
+      // Indian-language model would spend the primary slot on a provider that cannot
+      // serve it.
+      if (servedBySarvam(code)) expect(calls[0].url, code).toContain("api.sarvam.ai");
+      else expect(calls[0].url, code).not.toContain("api.sarvam.ai");
       // The salt carries the language, so no two languages share a cache entry.
       const other = await compose({ language: "en-IN" });
       expect(prompt).not.toBe(other.calls[0].body);

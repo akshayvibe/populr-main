@@ -1,4 +1,4 @@
-import { isEnglish, language, languageCode } from "@/lib/i18n/languages";
+import { isEnglish, language, languageCode, servedBySarvam } from "@/lib/i18n/languages";
 import { generateText, configuredProviderNames } from "@/lib/services/llm";
 import { CRAFT_RULES, CRAFT_BANS, POST_SHAPES, INTERACTION, DISCOVERY, formFor, scoreDraft, rewriteNote } from "./craft";
 import { extractJson, LlmJsonError } from "@/lib/llm-json";
@@ -225,12 +225,19 @@ export async function composeWithAi(
   // states intent, and a future change that moves the language instruction elsewhere would
   // silently start serving a Hindi request the English post it cached ten minutes ago.
   const cacheSalt = `compose:${dayKey(input.now)}:${languageCode(input.language)}:${opts.attempt ?? 0}`;
-  // Sarvam first for Indian-language work, and only for that.
+  // Sarvam first for the languages Sarvam is actually trained for.
   //
-  // This is a preference, not a switch: generateText moves it to the front and leaves every
-  // other provider behind it, so an outage costs quality rather than the post. English
-  // generation resolves exactly as it did before this existed.
-  const prefer = isEnglish(languageCode(input.language)) ? undefined : ("sarvam" as const);
+  // This used to read "not English, therefore Sarvam", which was true while the table held
+  // eleven Indian languages and became wrong the moment it held French and Thai — those
+  // would have been sent to an Indian-language model first, burning the primary slot on a
+  // provider that cannot serve them.
+  //
+  // Still a preference, not a switch: generateText moves it to the front and leaves every
+  // other provider behind it, so an outage costs quality rather than the post. English and
+  // every non-Indic language resolve exactly as they did before this existed.
+  const prefer = servedBySarvam(languageCode(input.language)) && !isEnglish(languageCode(input.language))
+    ? ("sarvam" as const)
+    : undefined;
   const result = await generateText({
     prompt: buildPrompt(input, ctx), cacheSalt, temperature: COMPOSE_TEMPERATURE, preferProvider: prefer,
   });

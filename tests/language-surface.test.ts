@@ -42,7 +42,8 @@ describe("the selector offers exactly what we support", () => {
   });
 
   it("offers every language the infrastructure supports", () => {
-    // The eleven from the brief: English plus ten Indian languages.
+    // The original brief: English plus ten Indian languages. Still all present — the table
+    // has since grown to Europe, Africa and Southeast Asia, and none of that removed these.
     for (const code of ["en-IN", "hi-IN", "bn-IN", "gu-IN", "kn-IN", "ml-IN", "mr-IN", "pa-IN", "ta-IN", "te-IN"]) {
       expect(LANGUAGE_CODES, code).toContain(code);
     }
@@ -79,7 +80,8 @@ describe("the API boundary validates before it trusts", () => {
 
   it("accepts every supported code and refuses anything else", () => {
     for (const c of LANGUAGE_CODES) expect(isLanguageCode(c), c).toBe(true);
-    for (const bad of ["", "en", "hi", "xx-XX", "fr-FR", null, undefined, 42, {}]) {
+    // fr-FR is supported now, so the rejects list holds only codes we genuinely do not ship.
+    for (const bad of ["", "en", "hi", "xx-XX", "zz-ZZ", null, undefined, 42, {}]) {
       expect(isLanguageCode(bad), String(bad)).toBe(false);
     }
   });

@@ -98,7 +98,9 @@ describe("one language list, not two", () => {
 
   it("includes Odia, verified against Sarvam's documented enum", () => {
     expect(LANGUAGE_CODES).toContain("od-IN");
-    expect(LANGUAGE_CODES).toHaveLength(11);
+    // Not a count. The table has since grown past the original eleven into Europe, Africa
+    // and Southeast Asia; asserting a number only records when that last changed.
+    expect(new Set(LANGUAGE_CODES).size).toBe(LANGUAGE_CODES.length);
   });
 });
 
