@@ -176,7 +176,7 @@ export default function SocialDashboard() {
         <h2 className="lw-h2">Up next</h2>
         <p className="lw-lang">
           Anything Populr writes for this queue goes out in <b>{localeLabel(language)}</b>, using
-          whichever language is set when the slot runs. <a href="/studio/integrations">Change it in Settings</a>.
+          whichever language is set when the slot runs. <a href="/studio/preferences">Change it in Preferences</a>.
         </p>
         <div className="job-list">
           {jobs.length ? jobs.map((j) => (

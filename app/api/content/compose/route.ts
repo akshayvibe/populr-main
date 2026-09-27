@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { rateLimit, requestKey } from "@/lib/throttle";
 import { workspaceKey } from "@/lib/intel";
+import { db } from "@/lib/db";
+import { getWorkspaceTimezone } from "@/lib/i18n/regions";
 import { socialEngine } from "@/lib/social/shared";
 import { buildVariants, isContentFormat, isSocialPlatform, type ContentFormat } from "@/lib/content/compose";
 import { composeWithAi } from "@/lib/content/ai";
@@ -143,7 +145,11 @@ export async function POST(req: NextRequest) {
 
       if (action === "schedule") {
         const slot = composed.schedule.find((s) => s.platform === variant.platform);
-        const job = await engine.schedule(request, slot?.at ?? Date.now() + 3_600_000, String(body.timezone || "UTC"));
+        // The browser sends its own timezone and that stays authoritative — someone
+        // scheduling by hand means the clock in front of them. The fallback is the
+        // workspace's region rather than UTC, which is what a request without one gets.
+        const timezone = String(body.timezone || "") || await getWorkspaceTimezone(db(), tenant);
+        const job = await engine.schedule(request, slot?.at ?? Date.now() + 3_600_000, timezone);
         results.push({ platform: variant.platform, jobId: job.id, state: job.state, at: job.scheduledAt });
       } else if (action === "now") {
         const job = await engine.publishNow(request);

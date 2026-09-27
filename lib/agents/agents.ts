@@ -13,6 +13,7 @@ import { scoreDraft } from "@/lib/content/craft";
 import { auditUrl } from "@/lib/seo/audit";
 import { hasMarketData } from "./context";
 import type { AgentId, AgentOutcome, SharedContext } from "./types";
+import { getWorkspaceTimezone } from "@/lib/i18n/regions";
 
 // The nine agents.
 //
@@ -253,6 +254,7 @@ export const publishingAgent: Agent = {
     const accounts = await engine.listAccounts(ctx.tenant).catch(() => []);
     const usable = accounts.filter((a) => a.status === "connected");
     const scheduled: string[] = [];
+    const tz = await getWorkspaceTimezone(db(), ctx.tenant);
     for (const account of usable) {
       // Idempotency key is the agent's contract with the Publishing Engine: the same
       // campaign on the same account never double-posts, however often this step re-runs.
@@ -263,7 +265,10 @@ export const publishingAgent: Agent = {
           assets: [], idempotencyKey: `agent:publishing:${ctx.launchId}:${ctx.campaignId}:${account.id}`,
         },
         ctx.now + 86_400_000,
-        "UTC",
+        // The workspace's own clock, not UTC. This is the unattended path — nobody is at a
+        // browser to supply a timezone — so a hardcoded "UTC" scheduled every Indian
+        // workspace five and a half hours off its own mid-morning.
+        tz,
       );
       scheduled.push(`${platformName(account.platform)} — job ${jobRef(job.id)}`);
     }

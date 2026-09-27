@@ -4117,3 +4117,35 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .studio-light .lw-example{background:#fdf8ec;border-color:#ead9b8;color:#4a3f2a}
 .studio-light .lw-example a{color:#7a4b00}
 .studio-light .lw-example a:hover{color:#5c3800}
+
+/* Preferences — where you sell, and what you sell in.
+   Two cards rather than one long form, because they are two different decisions that happen
+   to be made together. Each states what it changes directly under its title, since a
+   location control on a marketing tool otherwise reads as if it localises the copy. */
+.prefs{max-width:900px}
+.prefs-head{margin-bottom:26px}
+.prefs-h1{margin:10px 0 0;font-size:clamp(24px,3.4vw,32px);font-weight:600;letter-spacing:-.03em;line-height:1.12;text-wrap:balance}
+.prefs-sub{margin:10px 0 0;max-width:62ch;font-size:14px;line-height:1.6;color:var(--dim)}
+.prefs-empty{margin:0 0 20px;padding:13px 16px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);font-size:13px;line-height:1.55;color:var(--dim)}
+.prefs-empty a{color:var(--acc-text)}
+.prefs-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.prefs-card{border:1px solid var(--line);border-radius:12px;background:var(--panel);padding:20px}
+.prefs-h2{margin:0;font-size:15px;font-weight:600;letter-spacing:-.01em}
+.prefs-what{margin:4px 0 16px;font-size:13px;color:var(--faint)}
+.prefs-field{display:flex;flex-direction:column;gap:7px}
+.prefs-field>span{font-size:12.5px;color:var(--dim)}
+.prefs-field .cmp-select{width:100%}
+.prefs-field .cmp-select:disabled{opacity:.55;cursor:not-allowed}
+.prefs-tz{margin:12px 0 0;font-size:12.5px;line-height:1.55;color:var(--faint)}
+.prefs-tz b{color:var(--fg);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px}
+.prefs-facts{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:7px}
+.prefs-facts li{position:relative;padding-left:15px;font-size:12.5px;color:var(--faint);line-height:1.55}
+.prefs-facts li::before{content:"";position:absolute;left:0;top:8px;width:4px;height:4px;border-radius:50%;background:var(--faint)}
+.prefs-nudge{margin:16px 0 0;padding:13px 16px;border:1px solid var(--line);border-radius:10px;
+  background:var(--panel);font-size:13px;line-height:1.6;color:var(--dim)}
+.prefs-swap{background:none;border:0;padding:0;font:inherit;color:var(--acc-text);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.prefs-swap:hover{opacity:.78}
+.prefs-status{margin:18px 0 0;font-size:12.5px;color:var(--faint);min-height:1.4em}
+@media(max-width:640px){.prefs-grid{grid-template-columns:1fr}}

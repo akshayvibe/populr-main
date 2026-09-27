@@ -6,7 +6,6 @@ import ConnectorCockpit from "./ConnectorCockpit";
 import ReferAndEarn from "@/app/components/ReferAndEarn";
 import Billing from "@/app/components/Billing";
 import Icon, { type IconName } from "@/app/components/Icon";
-import LanguageSetting from "./LanguageSetting";
 
 // Settings.
 //
@@ -22,7 +21,7 @@ import LanguageSetting from "./LanguageSetting";
 // The panes themselves are the components that already worked. Nothing about connecting an
 // account or reading a plan changed here — only where they live and how you get to them.
 
-type SectionId = "accounts" | "language" | "sources" | "plan" | "refer" | "callbacks";
+type SectionId = "accounts" | "sources" | "plan" | "refer" | "callbacks";
 type Item = { id: SectionId; label: string; blurb: string; icon: IconName };
 
 // Typed explicitly rather than inferred from `as const`. flatMap over a readonly tuple of
@@ -33,7 +32,6 @@ const SECTIONS: { group: string; items: Item[] }[] = [
     group: "AI CMO",
     items: [
       { id: "accounts", label: "Accounts", blurb: "Where Populr is allowed to post. Nothing goes out anywhere you have not connected.", icon: "cast" },
-      { id: "language", label: "Language", blurb: "The language Populr writes in — including anything the queue publishes without you.", icon: "pen" },
       { id: "sources", label: "Data sources", blurb: "What Populr reads to build its analysis, and when each last synced.", icon: "chart" },
     ],
   },
@@ -154,7 +152,6 @@ export default function SettingsPage() {
           </div>
 
           {active === "accounts" && <AccountConnections variant="full" />}
-          {active === "language" && <LanguageSetting />}
           {active === "plan" && <Billing />}
           {active === "refer" && <ReferAndEarn />}
           {active === "callbacks" && <CallbackUrls />}
