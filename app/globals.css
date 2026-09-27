@@ -3,6 +3,10 @@
   --bg:#090b0b; --panel:#101412; --panel2:#171c19;
   --fg:#fbfdf9; --dim:#a2aaa1; --faint:#667069;
   --line:#27302a; --acc:#d5ff72; --amberr:#f2bf70; --redd:#f28d78;
+  /* The accent used as TEXT, which is a different decision from the accent used as a
+     fill. Identical to --acc here, so every dark surface renders exactly as before; the
+     light theme redefines this one token instead of shadowing 70-odd selectors. */
+  --acc-text:var(--acc);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -98,12 +102,12 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .legal p{color:var(--dim);font-size:15px;margin-bottom:14px}
 .legal ul{margin:0 0 16px 20px}
 .legal li{color:var(--dim);font-size:15px;margin-bottom:8px}
-.legal a{color:var(--acc)}
+.legal a{color:var(--acc-text)}
 .legal strong{color:var(--fg);font-weight:600}
 .legal .note{border:1px solid var(--line);border-radius:10px;padding:16px 18px;background:var(--panel);font-size:13.5px;color:var(--faint);margin-top:40px}
 .legal .legal-foot{margin-top:48px;padding-top:24px;border-top:1px solid var(--line);font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--faint);display:flex;gap:18px}
 .legal .legal-foot a{color:var(--faint);text-decoration:none}
-.legal .legal-foot a:hover{color:var(--acc)}
+.legal .legal-foot a:hover{color:var(--acc-text)}
 
 /* =========================================================
    APP  (scoped under .appui; --green here = real green)
@@ -136,17 +140,17 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .tb-l img{height:13px;image-rendering:pixelated}
 .appui .tb-l .sep{color:var(--faint);font-family:'Geist Mono',monospace;font-size:11.5px}
 .appui .tb-r{display:flex;align-items:center;gap:12px;font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--dim)}
-.appui .tb-r .credits{color:var(--acc)}
+.appui .tb-r .credits{color:var(--acc-text)}
 .appui .avatar{width:22px;height:22px;border-radius:50%;background:var(--panel2);border:1px solid var(--line);display:grid;place-items:center;font-size:10px;color:var(--dim)}
 .appui .bell{display:grid;place-items:center;width:28px;height:28px;border-radius:6px;background:none;border:1px solid transparent;color:var(--faint);transition:color .15s,background .15s,border-color .15s;padding:0}
 .appui .bell svg{width:16px;height:16px;display:block}
 .appui .bell:hover{color:var(--fg);background:var(--panel)}
-.appui .bell.on{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 28%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.appui .bell.on{color:var(--acc-text);border-color:color-mix(in srgb,var(--acc) 28%,transparent);background:color-mix(in srgb,var(--acc) 10%,transparent)}
 .appui .bell:disabled{opacity:.5}
 
 .appui .termstrip{flex:0 0 auto;height:150px;background:#000;border-bottom:1px solid var(--line);overflow:hidden;position:relative}
 .appui .tlog{position:absolute;inset:0;padding:10px 16px;font-family:'Geist Mono',monospace;font-size:12.5px;line-height:1.85;overflow-y:auto;color:var(--dim)}
-.appui .tlog .tl-p{color:var(--acc)}
+.appui .tlog .tl-p{color:var(--acc-text)}
 .appui .tlog .tl-ok{color:var(--green)}
 .appui .term-toggle{position:absolute;top:6px;right:10px;z-index:2;background:transparent;border:0;color:var(--faint);font-family:'Geist Mono',monospace;font-size:11.5px}
 .appui .term-toggle:hover{color:var(--fg)}
@@ -204,7 +208,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   .appui .col-body{overflow:visible;min-height:0;flex:1 0 auto}
   .appui .mobilenav{display:flex;flex:0 0 auto;position:sticky;bottom:0;z-index:40;border-top:1px solid var(--line);background:#000;padding-bottom:env(safe-area-inset-bottom)}
   .appui .mobilenav button{flex:1;background:none;border:0;color:var(--faint);font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.04em;padding:9px 0 8px;display:flex;flex-direction:column;align-items:center;gap:4px}
-  .appui .mobilenav button.on{color:var(--acc)}
+  .appui .mobilenav button.on{color:var(--acc-text)}
   .appui .mobilenav button .mi{font-size:18px;line-height:1}
   .appui .stat .sv{font-size:22px}
 }
@@ -247,7 +251,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .legend .l2 i{background:var(--faint);height:0;border-top:2px dashed var(--faint)}
 .appui .rankrow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--line);font-size:12.5px}
 .appui .rankrow:last-child{border-bottom:0}
-.appui .rankpos{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc);background:rgba(205,166,242,.08);border:1px solid rgba(205,166,242,.25);border-radius:6px;padding:2px 7px;min-width:34px;text-align:center}
+.appui .rankpos{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc-text);background:rgba(205,166,242,.08);border:1px solid rgba(205,166,242,.25);border-radius:6px;padding:2px 7px;min-width:34px;text-align:center}
 .appui .rankrow .rq{flex:1;color:var(--dim)}
 .appui .rankrow .rt{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--green)}
 .appui .placeholder{border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center;color:var(--faint);font-size:12.5px;margin-top:14px}
@@ -296,7 +300,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .pq-item{display:flex;flex-direction:column;gap:10px;padding:12px 12px;border-bottom:1px solid var(--line)}
 .appui .pq-item:last-child{border-bottom:0}
 .appui .pq-main{display:flex;flex-direction:column;gap:4px;min-width:0}
-.appui .pq-ch{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.appui .pq-ch{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-text)}
 .appui .pq-title{color:var(--fg);font-size:12.5px;line-height:1.5;word-break:break-word}
 .appui .pq-acts{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-start}
 .appui .pq-window{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);padding:8px 12px;border-top:1px solid var(--line)}
@@ -363,7 +367,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .authcard .submit:hover{opacity:.85}
 .appui .authcard .submit:disabled{opacity:.5}
 .appui .authcard .toggle{margin-top:14px;text-align:center;font-size:12.5px;color:var(--dim)}
-.appui .authcard .toggle button{background:none;border:0;color:var(--acc);font-size:12.5px}
+.appui .authcard .toggle button{background:none;border:0;color:var(--acc-text);font-size:12.5px}
 .appui .authcard .xclose{float:right;background:none;border:0;color:var(--faint);font-size:15px}
 .appui .social{margin-top:18px;display:flex;flex-direction:column;gap:8px}
 .appui .social-btn{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--fg);color:#111;border:1px solid var(--line);border-radius:10px;font-size:13.5px;font-weight:600;padding:11px;text-decoration:none;transition:opacity .15s}
@@ -392,7 +396,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .plan-info{flex:1;min-width:0}
 .appui .plan-line{display:flex;align-items:center;gap:8px}
 .appui .plan-line b{font-size:13.5px;font-weight:600}
-.appui .plan-win{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent);border-radius:6px;padding:1px 7px}
+.appui .plan-win{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc-text);background:color-mix(in srgb,var(--acc) 10%,transparent);border-radius:6px;padding:1px 7px}
 .appui .plan-what{color:var(--dim);font-size:12.5px;margin-top:3px;line-height:1.4}
 .appui .plan-go{flex:0 0 auto;background:none;border:1px solid var(--line);border-radius:6px;color:var(--dim);font-size:11.5px;padding:5px 12px}
 .appui .plan-go:hover{color:var(--fg);border-color:var(--faint)}
@@ -665,9 +669,9 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .ea-signin:hover{color:var(--fg)}
 
 .ea-hero{text-align:center;padding:64px 0 20px;max-width:740px;margin:0 auto}
-.ea-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);
+.ea-badge{display:inline-flex;align-items:center;gap:8px;font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-text);
   border:1px solid rgba(213,255,114,.28);background:rgba(213,255,114,.06);border-radius:100px;padding:7px 14px;backdrop-filter:blur(8px)}
-.ea-spark{color:var(--acc)}
+.ea-spark{color:var(--acc-text)}
 .ea-hero h1{font-size:clamp(38px,7vw,68px);font-weight:600;letter-spacing:-.04em;line-height:1.02;margin:22px 0 0;
   background:linear-gradient(180deg,#fff 40%,#b9c2b4);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 .ea-sub{margin:20px auto 0;max-width:600px;font-size:18px;line-height:1.6;color:var(--dim)}
@@ -694,7 +698,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
   backdrop-filter:blur(10px);transition:border-color .15s}
 .ea-pill:hover{border-color:rgba(213,255,114,.32)}
 .ea-pico{width:36px;height:36px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;border-radius:50%;
-  color:var(--acc);border:1px solid rgba(213,255,114,.22);background:rgba(213,255,114,.05)}
+  color:var(--acc-text);border:1px solid rgba(213,255,114,.22);background:rgba(213,255,114,.05)}
 .ea-pico svg{width:19px;height:19px}
 .ea-ptitle{font-size:15px;font-weight:500;color:var(--fg)}
 @keyframes eaMarquee{to{transform:translateX(-50%)}}
@@ -762,14 +766,14 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .eaa-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
 .eaa-top h1{font-size:28px;font-weight:600;letter-spacing:-.02em}
 .eaa-top h1 span{color:var(--faint);font-weight:400;font-family:'Geist Mono',monospace;font-size:15px}
-.eaa-export{font-family:'Geist Mono',monospace;font-size:12.5px;padding:9px 15px;border-radius:10px;border:1px solid rgba(213,255,114,.35);background:transparent;color:var(--acc)}
+.eaa-export{font-family:'Geist Mono',monospace;font-size:12.5px;padding:9px 15px;border-radius:10px;border:1px solid rgba(213,255,114,.35);background:transparent;color:var(--acc-text)}
 .eaa-export:disabled{opacity:.4;cursor:default}
 .eaa-controls{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:18px}
 .eaa-search{flex:1;min-width:240px;background:var(--panel);border:1px solid var(--line);border-radius:10px;color:var(--fg);font-size:15px;padding:11px 14px;outline:none}
 .eaa-search:focus{border-color:var(--acc)}
 .eaa-filters{display:flex;gap:6px;flex-wrap:wrap}
 .eaa-fil{font-family:'Geist Mono',monospace;font-size:11.5px;padding:8px 12px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--dim);text-transform:capitalize}
-.eaa-fil.on{border-color:var(--acc);color:var(--acc)}
+.eaa-fil.on{border-color:var(--acc);color:var(--acc-text)}
 .eaa-empty{border:1px dashed var(--line);border-radius:14px;padding:40px;text-align:center;color:var(--dim);font-size:15px}
 .eaa-scroll{overflow-x:auto;border:1px solid var(--line);border-radius:14px}
 .eaa-table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:960px}
@@ -778,11 +782,11 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .eaa-table tr:last-child td{border-bottom:0}
 .eaa-mono{font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--dim)}
 .eaa-mono a{color:var(--dim);text-decoration:none}
-.eaa-mono a:hover{color:var(--acc)}
+.eaa-mono a:hover{color:var(--acc-text)}
 .eaa-web{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);text-decoration:none}
 .eaa-chal{max-width:260px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
 .eaa-status{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim)}
-.eaa-status[data-s="accepted"]{color:var(--acc);border-color:rgba(213,255,114,.4)}
+.eaa-status[data-s="accepted"]{color:var(--acc-text);border-color:rgba(213,255,114,.4)}
 .eaa-status[data-s="rejected"]{color:var(--redd);border-color:rgba(242,141,120,.35)}
 .eaa-status[data-s="contacted"]{color:var(--amberr);border-color:rgba(242,191,112,.35)}
 .eaa-actions{white-space:nowrap}
@@ -795,7 +799,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .msg.deliverable{background:var(--panel2);border-color:rgba(213,255,114,.22);color:var(--fg);font-family:'Geist Mono',monospace;font-size:12.5px;line-height:1.7}
 .appui .msg-actions{display:flex;gap:8px;margin-top:8px;padding-top:8px;border-top:1px solid var(--line)}
 .appui .msg-actions button{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:6px;padding:4px 9px}
-.appui .msg-actions button:hover{color:var(--acc);border-color:rgba(213,255,114,.35)}
+.appui .msg-actions button:hover{color:var(--acc-text);border-color:rgba(213,255,114,.35)}
 
 /* ---- mobile topbar overflow menu (desktop unchanged) ---- */
 .appui .topbar{position:relative;padding-top:env(safe-area-inset-top,0px);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
@@ -829,13 +833,13 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .missions .m-asset{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:12px 13px}
 .missions .m-asset:hover{border-color:var(--dim)}
 .missions .m-arow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
-.missions .m-atype{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc)}
+.missions .m-atype{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--acc-text)}
 .missions .m-astatus{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim);white-space:nowrap}
-.missions .m-astatus[data-s="approved"]{color:var(--acc);border-color:rgba(213,255,114,.4)}
+.missions .m-astatus[data-s="approved"]{color:var(--acc-text);border-color:rgba(213,255,114,.4)}
 .missions .m-astatus[data-s="archived"]{color:var(--faint)}
 .missions .m-astatus[data-s="published"]{color:var(--fg)}
 .missions .m-atitle{display:block;width:100%;text-align:left;background:none;border:0;color:var(--fg);font-size:13.5px;font-weight:500;line-height:1.4;padding:0;cursor:pointer}
-.missions .m-atitle:hover{color:var(--acc)}
+.missions .m-atitle:hover{color:var(--acc-text)}
 .missions .m-aacts{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
 .missions .m-aacts>button,.missions .m-txwrap>button{font-family:'Geist Mono',monospace;font-size:11.5px;min-height:34px;padding:7px 12px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--dim)}
 .missions .m-aacts>button:hover:not(:disabled),.missions .m-txwrap>button:hover:not(:disabled){color:var(--fg);border-color:var(--dim)}
@@ -846,10 +850,10 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .missions .m-txmenu button:hover{background:var(--panel)}
 .missions .m-addwrap{position:relative;margin-top:14px}
 .missions .m-addbtn{font-family:'Geist Mono',monospace;font-size:12.5px;min-height:38px;padding:9px 15px;border-radius:10px;border:1px dashed var(--line);background:transparent;color:var(--dim);width:100%}
-.missions .m-addbtn:hover{color:var(--acc);border-color:rgba(213,255,114,.35)}
+.missions .m-addbtn:hover{color:var(--acc-text);border-color:rgba(213,255,114,.35)}
 .missions .m-addmenu{margin-top:8px;display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
 .missions .m-addmenu button{font-family:'Geist Mono',monospace;font-size:11.5px;min-height:38px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--fg)}
-.missions .m-addmenu button:hover:not(:disabled){border-color:var(--acc);color:var(--acc)}
+.missions .m-addmenu button:hover:not(:disabled){border-color:var(--acc);color:var(--acc-text)}
 .missions .m-addmenu button:disabled{opacity:.5}
 @media(max-width:640px){
   .missions .m-addmenu{grid-template-columns:repeat(2,1fr)}
@@ -908,14 +912,14 @@ html{scroll-padding-top:var(--eab-h,0px)}
   padding:30px 30px 28px;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:eamPop .24s cubic-bezier(.2,.9,.3,1.2)}
 .eam-close{position:absolute;top:16px;right:18px;background:none;border:0;color:var(--dim);font-size:22px;line-height:1}
 .eam-close:hover{color:var(--fg)}
-.eam-head .label{color:var(--acc)}
+.eam-head .label{color:var(--acc-text)}
 .eam-head h2{margin:10px 0 6px;font-size:22px;font-weight:600;letter-spacing:-.02em;line-height:1.2}
 .eam-head p{color:var(--dim);font-size:13.5px;line-height:1.5;margin-bottom:20px}
 .eam-form{display:flex;flex-direction:column;gap:14px}
 .eam-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .eam-field{display:flex;flex-direction:column;gap:6px}
 .eam-field>span{font-size:12.5px;color:var(--dim);font-weight:500}
-.eam-field>span b{color:var(--acc)}
+.eam-field>span b{color:var(--acc-text)}
 .eam-field input,.eam-field select,.eam-field textarea{background:var(--bg);border:1px solid var(--line);border-radius:10px;
   color:var(--fg);font-size:15px;padding:11px 12px;width:100%;transition:border-color .15s;font-family:inherit;resize:vertical}
 .eam-field input:focus,.eam-field select:focus,.eam-field textarea:focus{outline:none;border-color:var(--acc)}
@@ -954,7 +958,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .st-brand{display:flex;align-items:baseline;gap:9px;text-decoration:none;
   letter-spacing:-.02em;padding:6px 8px 14px;margin-bottom:2px;border-bottom:1px solid var(--line)}
 .st-brand-word{font-size:18px;font-weight:600;color:var(--fg);letter-spacing:-.04em;text-shadow:0 0 22px rgba(255,255,255,.1)}
-.st-brand-acc{color:var(--acc)}
+.st-brand-acc{color:var(--acc-text)}
 .st-brand-name{font-size:12.5px;font-weight:500;color:var(--faint)}
 .st-navlabel{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);padding:12px 10px 6px}
 .st-links{display:flex;flex-direction:column;gap:2px}
@@ -963,7 +967,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .st-link:hover{background:var(--panel2);color:var(--fg)}
 .st-link.on{background:rgba(213,255,114,.12);color:var(--fg);font-weight:600}
 .st-link-ic{flex:none;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:currentColor;opacity:.85}
-.st-link.on .st-link-ic{color:var(--acc);opacity:1}
+.st-link.on .st-link-ic{color:var(--acc-text);opacity:1}
 .st-link-label{flex:1;min-width:0}
 .st-back{margin-top:auto;display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:10px;font-size:13.5px;color:var(--faint);text-decoration:none;transition:background .12s,color .12s}
 .st-back:hover{background:var(--panel2);color:var(--fg)}
@@ -984,7 +988,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .st-card-cta{align-self:flex-start;margin-top:4px;font-size:12.5px;font-weight:600;color:var(--faint);
   background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:8px 13px}
 .st-card-cta:disabled{cursor:default}
-.st-card-open{color:var(--acc);background:none;border:0;padding:6px 0}
+.st-card-open{color:var(--acc-text);background:none;border:0;padding:6px 0}
 .st-empty{border:1px dashed var(--line);border-radius:14px;padding:34px 20px;text-align:center;color:var(--dim);font-size:15px}
 @media(max-width:820px){
   .studio{grid-template-columns:1fr}
@@ -1008,7 +1012,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* ---- Launch plan (studio flagship) ---- */
 .st-plan{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:6px}
 .st-plan-stage{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
-.st-plan-stage-h{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:10px}
+.st-plan-stage-h{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-text);margin-bottom:10px}
 .st-plan-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0}
 .st-plan-item{display:flex;align-items:center;gap:10px}
 .st-plan-num{flex:none;width:20px;height:20px;border-radius:6px;background:var(--bg);border:1px solid var(--line);
@@ -1029,7 +1033,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .lw-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:12px}
 .lw-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 15px}
 .lw-card-h{font-size:15px;font-weight:600;color:var(--fg);margin-bottom:4px}
-.lw-k{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc);margin-bottom:8px}
+.lw-k{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--acc-text);margin-bottom:8px}
 .lw-meta{font-size:12.5px;color:var(--dim);margin-top:6px}
 .lw-list{list-style:none;display:flex;flex-direction:column;gap:8px;margin:0;padding:0;font-size:13.5px;color:var(--dim);line-height:1.5}
 .lw-list b{color:var(--fg);font-weight:600}
@@ -1055,7 +1059,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .lw-timeline{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:12px}
 .lw-week{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px}
 .lw-week-h{display:flex;justify-content:space-between;align-items:baseline;font-weight:600;font-size:13.5px;margin-bottom:10px}
-.lw-week-phase{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+.lw-week-phase{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc-text)}
 .lw-week-items{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:7px;font-size:12.5px;color:var(--dim)}
 .lw-week-items li{display:flex;justify-content:space-between;gap:8px;align-items:center}
 .lw-week-ch{font-family:'Geist Mono',monospace;font-size:10px;color:var(--faint);text-transform:uppercase;flex:none}
@@ -1070,7 +1074,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* publishing */
 .lw-pipe{display:flex;flex-wrap:wrap;align-items:center;gap:4px;margin-top:12px;font-family:'Geist Mono',monospace;font-size:11.5px;text-transform:uppercase;letter-spacing:.05em;color:var(--dim)}
 .lw-pipe-arrow{color:var(--faint);margin:0 4px}
-.lw-slot-day{font-family:'Geist Mono',monospace;font-size:10px;color:var(--acc);margin-bottom:4px}
+.lw-slot-day{font-family:'Geist Mono',monospace;font-size:10px;color:var(--acc-text);margin-bottom:4px}
 .lw-stage{color:var(--amberr)}
 
 /* experiments + performance + relationships */
@@ -1079,15 +1083,15 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .lw-perf-target{font-size:22px;font-weight:600;letter-spacing:-.02em;margin:4px 0}
 .lw-rel{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:12px}
 .lw-rel-node{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 13px;font-size:12.5px;color:var(--fg)}
-.lw-rel-root{border-color:var(--acc);color:var(--acc)}
+.lw-rel-root{border-color:var(--acc);color:var(--acc-text)}
 .lw-rel-asset{background:var(--bg);color:var(--dim)}
 .lw-rel-arrow{color:var(--faint)}
 @media(max-width:640px){.lw-grid2{grid-template-columns:1fr}}
 
 /* ---- Publishing dashboard helpers (Milestone 9) ---- */
-.pub-count{font-family:'Geist Mono',monospace;color:var(--acc);font-weight:600}
+.pub-count{font-family:'Geist Mono',monospace;color:var(--acc-text);font-weight:600}
 .pub-plat{font-family:'Geist Mono',monospace;font-size:10px;color:var(--faint);text-transform:uppercase;margin-left:4px}
-.pub-health{font-size:13.5px;color:var(--acc);margin:4px 0}
+.pub-health{font-size:13.5px;color:var(--acc-text);margin:4px 0}
 
 /* ===================== AI Processing experience (Global loading) ===================== */
 .aip{--aip-acc:#d5ff72;color:var(--fg);font-family:'Inter',sans-serif}
@@ -1159,7 +1163,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* AI processing — inline in chat + enabled studio generate button */
 .chat-processing{margin:2px 0 6px;max-width:440px}
 .st-card-gen{cursor:pointer;color:var(--fg);border-color:var(--line);transition:border-color .15s,color .15s,background .15s}
-.st-card-gen:hover{border-color:var(--acc);color:var(--acc);background:rgba(213,255,114,.08)}
+.st-card-gen:hover{border-color:var(--acc);color:var(--acc-text);background:rgba(213,255,114,.08)}
 
 /* ---- Job execution dashboard (Milestone 11) ---- */
 .job-tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:12px;margin-bottom:8px}
@@ -1170,7 +1174,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .job-row{display:grid;grid-template-columns:150px 130px 1fr 200px;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
 .job-type{font-size:13.5px;font-weight:600;color:var(--fg);text-transform:capitalize}
 .job-state{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--dim)}
-.job-state.job-ok{color:var(--acc)}
+.job-state.job-ok{color:var(--acc-text)}
 .job-state.job-bad{color:var(--redd)}
 .job-state.job-warn{color:var(--amberr)}
 .job-state.job-muted{color:var(--faint)}
@@ -1273,7 +1277,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   color:var(--dim);background:var(--panel);border:1px solid var(--line);border-radius:100px;padding:6px 13px;
   transition:border-color .15s ease,color .15s ease}
 .agt-node:hover,.agt-node.on{border-color:var(--acc);color:var(--fg)}
-.agt-node.job-ok{color:var(--acc)}
+.agt-node.job-ok{color:var(--acc-text)}
 .agt-node.job-bad{color:var(--redd);border-color:rgba(242,141,120,.35)}
 .agt-node.job-warn{color:var(--amberr);border-color:rgba(242,191,112,.35)}
 .agt-count{font-family:'Geist Mono',monospace;font-size:10px;color:var(--faint);font-weight:500}
@@ -1288,7 +1292,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .lw-chip.lwa-chip-btn.on{border-color:var(--acc);color:var(--fg);background:rgba(213,255,114,.1)}
 .ugc-scenes{display:flex;flex-direction:column;gap:10px;margin-top:6px}
 .ugc-scene{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start}
-.ugc-at{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc);padding-top:2px}
+.ugc-at{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc-text);padding-top:2px}
 .ugc-line{font-size:13.5px;color:var(--fg);line-height:1.5}
 .ugc-visual{font-size:12.5px;margin-top:3px}
 @media(max-width:620px){.cmp-controls>*{flex:1 1 100%}.cmp-audience{min-width:0}}
@@ -1348,11 +1352,11 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .cmp-meta{display:flex;flex-wrap:wrap;align-items:baseline;gap:var(--s-2) var(--s-3);
   font-size:var(--t-sm);color:var(--faint);padding:var(--s-2) 0 var(--s-1)}
 .cmp-src{font-family:'Geist Mono',monospace;font-size:var(--t-xs);letter-spacing:.06em;
-  text-transform:uppercase;color:var(--acc)}
+  text-transform:uppercase;color:var(--acc-text)}
 .cmp-conf{font-family:'Geist Mono',monospace;font-size:var(--t-xs);color:var(--dim)}
 /* The language of the copy, shown only when it is not the default. Accent rather than
    dim: it is the one fact on this line that changes what the reader is looking at. */
-.cmp-lang{font-family:'Geist Mono',monospace;font-size:var(--t-xs);letter-spacing:.06em;color:var(--acc)}
+.cmp-lang{font-family:'Geist Mono',monospace;font-size:var(--t-xs);letter-spacing:.06em;color:var(--acc-text)}
 .cmp-reason{flex:1 1 340px;color:var(--dim);line-height:1.5}
 .cmp-degraded{flex:1 1 100%;color:var(--amberr);font-size:var(--t-sm);line-height:1.5}
 
@@ -1511,7 +1515,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .appui .brief-rec{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;
   padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .appui .brief-rec-body{display:flex;flex-direction:column;gap:5px}
-.appui .brief-rec-title{font-size:13.5px;font-weight:600;color:var(--acc)}
+.appui .brief-rec-title{font-size:13.5px;font-weight:600;color:var(--acc-text)}
 .appui .brief-rec-why{font-size:12.5px;line-height:1.55;color:var(--dim)}
 .appui .brief-rec-go{flex:0 0 auto;font-size:12.5px;font-weight:600;color:#0e1206;
   background:var(--acc);border-radius:10px;padding:8px 14px;text-decoration:none;
@@ -1641,7 +1645,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   padding:15px 0;border-bottom:1px solid var(--line)}
 .asst-facts dt{font-size:14px;color:var(--dim)}
 .asst-facts dd{margin:0;font-size:15.5px;text-align:right}
-.asst-facts dd.asst-need{color:var(--acc)}
+.asst-facts dd.asst-need{color:var(--acc-text)}
 
 .asst-actions{display:flex;gap:12px;align-items:center}
 .asst-note{margin:22px 0 0;font-size:13.5px;line-height:1.55;color:var(--faint)}
@@ -1716,12 +1720,12 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* Paused shares the amber of linked-but-not-live: both mean "real connection, nothing goes
    out". Pro is the accent — it is the one row state that is an offer rather than a warning. */
 .conn-paused{color:#e0b341}
-.conn-needs_plan{color:var(--acc)}
+.conn-needs_plan{color:var(--acc-text)}
 .conn-soon{color:var(--faint)}
 
 .conn-btn{padding:4px 12px;border:1px solid var(--line);border-radius:100px;background:none;
   color:var(--dim);font-size:12px;transition:color .15s,border-color .15s}
-.conn-btn:hover{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
+.conn-btn:hover{color:var(--acc-text);border-color:color-mix(in srgb,var(--acc) 40%,var(--line))}
 .conn-btn:disabled{opacity:.5}
 .conn-x{width:20px;height:20px;border:0;border-radius:5px;background:none;color:var(--faint);
   font-size:14px;line-height:1;padding:0}
@@ -1761,7 +1765,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   overflow-x:auto;white-space:nowrap}
 .refer-link button{flex:0 0 auto;padding:9px 16px;border:1px solid var(--line);border-radius:9px;
   background:var(--panel);color:var(--fg);font-size:13.5px}
-.refer-link button:hover{border-color:color-mix(in srgb,var(--acc) 40%,var(--line));color:var(--acc)}
+.refer-link button:hover{border-color:color-mix(in srgb,var(--acc) 40%,var(--line));color:var(--acc-text)}
 
 .refer-progress{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .refer-pips{display:flex;gap:5px}
@@ -1783,7 +1787,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(213,255,114,.07),transparent 70%)}
 .join-card{width:100%;max-width:400px}
 .join-brand{display:block;font-size:19px;font-weight:600;letter-spacing:-.02em;margin-bottom:28px}
-.join-acc{color:var(--acc)}
+.join-acc{color:var(--acc-text)}
 .join-card h1{font-size:28px;letter-spacing:-.03em;margin:0 0 10px;line-height:1.15}
 .join-lede{margin:0 0 20px;font-size:14.5px;line-height:1.55;color:var(--dim)}
 
@@ -2293,7 +2297,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .g-next h2 { font-size: 13px; font-family: 'Geist Mono', monospace; letter-spacing: .1em; text-transform: uppercase; color: var(--faint); margin: 0 0 16px; }
 .g-next ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 16px; }
 .g-next a { color: var(--fg); text-decoration: none; font-size: 16px; }
-.g-next a:hover { color: var(--acc); }
+.g-next a:hover { color:var(--acc-text); }
 .g-next span { display: block; font-size: 13.5px; line-height: 1.55; color: var(--faint); margin-top: 4px; }
 
 .g-cta {
@@ -2353,7 +2357,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   letter-spacing: .07em; text-transform: uppercase; white-space: nowrap;
 }
 .bill-badge i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
-.bill-ok   { color: var(--acc);    background: rgba(213,255,114,.1); border: 1px solid rgba(213,255,114,.26); }
+.bill-ok   { color:var(--acc-text);    background: rgba(213,255,114,.1); border: 1px solid rgba(213,255,114,.26); }
 .bill-warn { color: var(--amberr); background: rgba(242,191,112,.1); border: 1px solid rgba(242,191,112,.26); }
 .bill-bad  { color: var(--redd);   background: rgba(242,141,120,.1); border: 1px solid rgba(242,141,120,.26); }
 
@@ -2715,7 +2719,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   border-color: rgba(213,255,114,.3);
   background: linear-gradient(90deg, rgba(213,255,114,.09), rgba(213,255,114,.025));
 }
-.landing .plan-do .plan-verdict { color: var(--acc); }
+.landing .plan-do .plan-verdict { color:var(--acc-text); }
 .landing .plan-do .plan-task { color: var(--fg); font-weight: 600; }
 .landing .plan-do .plan-why { color: var(--dim); }
 
@@ -2807,7 +2811,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   background: rgba(255,255,255,.028);
   transition: color var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out);
 }
-.landing .int-chip:hover { color: var(--acc); border-color: rgba(213,255,114,.32) }
+.landing .int-chip:hover { color:var(--acc-text); border-color: rgba(213,255,114,.32) }
 .landing .int-note {
   margin-top: 22px; padding-top: 18px;
   border-top: 1px solid var(--edge);
@@ -3023,7 +3027,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 }
 .landing .act-receipt em { font-style: normal; color: var(--faint); font-size: 13px; }
 .landing .act-receipt .do { background: rgba(213,255,114,.07); color: var(--fg); }
-.landing .act-receipt .do span { color: var(--acc); }
+.landing .act-receipt .do span { color:var(--acc-text); }
 .landing .act-receipt .do em { color: var(--dim); }
 
 @media (max-width: 720px) {
@@ -3080,7 +3084,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 /* The log is the only live thing here, so it does not get a placeholder. */
 .appui .skl-shell .tlog .pl { color: var(--faint); }
-.appui .skl-shell .tlog .pl.done { color: var(--acc); }
+.appui .skl-shell .tlog .pl.done { color:var(--acc-text); }
 
 /* ── SEO audit ────────────────────────────────────────────────────────────
    Measurements, presented as measurements.
@@ -3228,7 +3232,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* Filled, not just tinted. On a rail of five items a colour change alone is easy to lose,
    and this is the only thing saying which pane you are looking at. */
 .settings .set-nav.on { color: var(--fg); background: rgba(255,255,255,.075); }
-.settings .set-nav.on svg { color: var(--acc); opacity: 1; }
+.settings .set-nav.on svg { color:var(--acc-text); opacity: 1; }
 
 .settings .set-pane { min-width: 0; }
 .settings .set-pane-head { margin-bottom: 22px; }
@@ -3382,14 +3386,14 @@ html{scroll-padding-top:var(--eab-h,0px)}
   border-radius:100px;background:var(--panel);color:var(--fg);font-size:13px}
 .intel-search:focus{outline:none;border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
 .intel-kinds{display:flex;flex-wrap:wrap;gap:6px}
-.intel-kinds .conn-btn.on{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.intel-kinds .conn-btn.on{color:var(--acc-text);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
 
 .intel-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
 .intel-row{padding:16px 0;border-top:1px solid var(--line)}
 .intel-row-top{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-bottom:8px}
 .intel-kind,.intel-chan,.intel-lic{font-family:'Geist Mono',monospace;font-size:10px;
   letter-spacing:.08em;text-transform:uppercase}
-.intel-kind{color:var(--acc)}
+.intel-kind{color:var(--acc-text)}
 .intel-chan{color:var(--dim)}
 /* Licence sits with the labels rather than in the footer: what we are allowed to do with a
    row is part of what the row is, not a footnote to it. */
@@ -3402,7 +3406,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .intel-row-foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:10px;
   font-size:11.5px;color:var(--faint)}
 .intel-src a{color:var(--dim);text-decoration:underline}
-.intel-src a:hover{color:var(--acc)}
+.intel-src a:hover{color:var(--acc-text)}
 .intel-tags{display:flex;flex-wrap:wrap;gap:6px}
 .intel-tags em{font-style:normal;padding:2px 8px;border:1px solid var(--line);border-radius:100px}
 .intel-empty{margin:24px 0;max-width:60ch;font-size:13.5px;line-height:1.6;color:var(--faint)}
@@ -3419,7 +3423,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   border:1px solid color-mix(in srgb,#e0b341 35%,var(--line));border-radius:9px;
   background:color-mix(in srgb,#e0b341 7%,transparent);
   font-size:12.5px;line-height:1.55;color:var(--dim)}
-.lw-example a{color:var(--acc);text-decoration:underline}
+.lw-example a{color:var(--acc-text);text-decoration:underline}
 
 /* ---- Tomorrow ------------------------------------------------------------
    One screen, one decision. Deliberately narrow and vertical: this is read top to
@@ -3434,7 +3438,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 .tm-list{list-style:none;margin:0;padding:0}
 .tm-post{display:flex;align-items:flex-start;gap:16px;padding:18px 0;border-top:1px solid var(--line)}
-.tm-time{flex:0 0 auto;padding-top:1px;font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--acc)}
+.tm-time{flex:0 0 auto;padding-top:1px;font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--acc-text)}
 .tm-body{flex:1 1 auto;min-width:0;display:flex;flex-direction:column;gap:3px}
 .tm-where{font-size:12px;color:var(--faint);display:flex;flex-wrap:wrap;align-items:baseline;gap:8px}
 .tm-warn{font-style:normal;color:#e0b341}
@@ -3448,7 +3452,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .tm-drop:disabled{opacity:.5}
 
 .tm-empty{margin:28px 0 0;max-width:52ch;font-size:14.5px;line-height:1.65;color:var(--dim)}
-.tm-empty a{color:var(--acc);text-decoration:underline}
+.tm-empty a{color:var(--acc-text);text-decoration:underline}
 
 .tm-skip{margin-top:44px;padding-top:28px;border-top:1px solid var(--line)}
 .tm-h2{margin:0 0 16px;font-size:14px;font-weight:500;color:var(--dim);letter-spacing:-.01em}
@@ -3472,7 +3476,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 }
 .tm-more{display:inline-block;margin-bottom:26px;font-size:12.5px;color:var(--faint);
   text-decoration:none;transition:color .15s}
-.tm-more:hover{color:var(--acc)}
+.tm-more:hover{color:var(--acc-text)}
 
 /* Why autopilot is not running, on the page where the question gets asked. Sits between
    the headline and the plan so it is read before the times, not after. */
@@ -3488,7 +3492,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .tm-b-note::before{background:#e0b341}
 .tm-b-title{font-size:13.5px;color:var(--fg)}
 .tm-b-detail{font-size:12.5px;line-height:1.5;color:var(--faint)}
-.tm-b-fix{align-self:flex-start;margin-top:3px;font-size:12.5px;color:var(--acc);text-decoration:none}
+.tm-b-fix{align-self:flex-start;margin-top:3px;font-size:12.5px;color:var(--acc-text);text-decoration:none}
 .tm-b-fix:hover{text-decoration:underline}
 .tm-block-done{margin:14px 0 0;padding-top:12px;border-top:1px solid var(--line);
   font-size:11.5px;color:var(--faint)}
@@ -3496,7 +3500,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* "Recommended" on the pre-selected answer. Says why it is already chosen, so a default
    reads as advice rather than as something the form filled in behind you. */
 .asst-rec{margin-left:8px;padding:2px 8px;border-radius:100px;
-  background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc);
+  background:color-mix(in srgb,var(--acc) 16%,transparent);color:var(--acc-text);
   font-family:'Geist Mono',monospace;font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;
   vertical-align:middle}
 
@@ -3505,7 +3509,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .home-plan{display:flex;flex-wrap:wrap;align-items:center;gap:18px;margin-top:18px}
 .home-plan-link{font-size:12.5px;color:var(--dim);text-decoration:none;
   border-bottom:1px solid var(--line);padding-bottom:2px;transition:color .15s,border-color .15s}
-.home-plan-link:hover{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.home-plan-link:hover{color:var(--acc-text);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
 
 /* The CMO's offer to act, under the answer that prompted it. Inside the message bubble on
    purpose — it belongs to that reply, not to the conversation, and a founder scrolling back
@@ -3518,7 +3522,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .msg-do-go:hover{filter:brightness(1.08)}
 .msg-do-go:disabled{opacity:.6}
 /* Once taken, the offer becomes a record of what happened rather than disappearing. */
-.msg-done{font-size:12px;color:var(--acc)}
+.msg-done{font-size:12px;color:var(--acc-text)}
 
 /* The measured result, directly under the status line. Accent-led because it is the one
    line on the dashboard that answers "did this work" — everything else on the screen is
@@ -3529,7 +3533,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   box-shadow:0 0 0 4px color-mix(in srgb,var(--acc) 14%,transparent)}
 .home-result-more{font-size:12.5px;color:var(--faint);text-decoration:none;
   border-bottom:1px solid var(--line);padding-bottom:1px}
-.home-result-more:hover{color:var(--acc);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
+.home-result-more:hover{color:var(--acc-text);border-color:color-mix(in srgb,var(--acc) 45%,var(--line))}
 
 /* ---- The team, as a studio lists it -------------------------------------
    Rows, not cards. Thirteen brand-coloured flip tiles read as a trading-card set;
@@ -3544,7 +3548,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 @media (max-width:720px){
   .landing .team-row{grid-template-columns:1fr;gap:6px;padding:18px 0}
-  .landing .team-role{font-size:13px;color:var(--acc)}
+  .landing .team-role{font-size:13px;color:var(--acc-text)}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
@@ -3571,7 +3575,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .stu-ctx-i em{font-family:'Geist Mono',monospace;font-style:normal;font-size:9.5px;
   letter-spacing:.1em;text-transform:uppercase;color:var(--faint)}
 .stu-ctx-empty{font-size:13px;color:var(--faint);line-height:1.5}
-.stu-ctx-empty a{color:var(--acc)}
+.stu-ctx-empty a{color:var(--acc-text)}
 
 .stu-composer{margin-bottom:44px}
 /* The composer's own heading is suppressed — this page already has one, and two titles
@@ -3637,7 +3641,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 .stu-pv-lang{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;place-items:center}
 .stu-pv-lang span{font-size:20px;line-height:1;color:var(--dim)}
-.stu-card:hover .stu-pv-lang span{color:var(--acc)}
+.stu-card:hover .stu-pv-lang span{color:var(--acc-text)}
 
 .stu-pv-shot{display:flex;align-items:center;gap:9px}
 .stu-pv-shot i{font-family:'Geist Mono',monospace;font-style:normal;font-size:9px;
@@ -3646,7 +3650,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 .stu-pv-rank{display:flex;align-items:center;gap:9px}
 .stu-pv-rank i{font-family:'Geist Mono',monospace;font-style:normal;font-size:10px;
-  color:var(--acc);flex:0 0 12px}
+  color:var(--acc-text);flex:0 0 12px}
 .stu-pv-rank em{height:7px;border-radius:3px;background:var(--line)}
 .stu-pv-rank em.w70{width:70%} .stu-pv-rank em.w55{width:55%} .stu-pv-rank em.w45{width:45%}
 /* The refusal, drawn: the term we are not going to chase. */
@@ -3711,7 +3715,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .cmp-ctx-i em{font-style:normal;font-family:'Geist Mono',monospace;font-size:10px;
   letter-spacing:.11em;text-transform:uppercase;color:var(--faint)}
 .cmp-ctx-empty{color:var(--dim)}
-.cmp-ctx-empty a{color:var(--acc);text-decoration:none;border-bottom:1px solid transparent}
+.cmp-ctx-empty a{color:var(--acc-text);text-decoration:none;border-bottom:1px solid transparent}
 .cmp-ctx-empty a:hover{border-bottom-color:var(--acc)}
 
 /* The canvas: a real surface, not a floating line of placeholder text. */
@@ -3732,7 +3736,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   transition:color .13s,border-color .13s}
 .cmp-alt:hover:not(:disabled){color:var(--fg);border-color:#3c4a3f}
 .cmp-alt:disabled{opacity:.5;cursor:default}
-.cmp-accept{color:var(--acc);border-color:#3c4a3f}
+.cmp-accept{color:var(--acc-text);border-color:#3c4a3f}
 .cmp-adv-toggle{font-family:inherit;font-size:13px;color:var(--faint);background:none;border:0;
   padding:0 8px;min-height:44px;cursor:pointer;transition:color .13s}
 .cmp-adv-toggle:hover{color:var(--fg)}
@@ -3800,7 +3804,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   color:var(--dim)}
 .cmp-note{font-size:12.5px;color:var(--amberr);margin-top:10px;line-height:1.5}
 .cmp-edited,.cmp-tip{font-size:12px;color:var(--faint);margin-top:14px;line-height:1.5}
-.cmp-linkbtn{font-family:inherit;font-size:12px;color:var(--acc);background:none;border:0;
+.cmp-linkbtn{font-family:inherit;font-size:12px;color:var(--acc-text);background:none;border:0;
   padding:0;cursor:pointer;text-decoration:underline}
 .cmp-pending{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:14px;font-size:13px;color:var(--dim)}
 
@@ -3870,6 +3874,11 @@ html{scroll-padding-top:var(--eab-h,0px)}
      for text, icons or focus uses this instead; it is the same hue, taken down
      to a contrast that passes. */
   --acc-ink:#4a6b00;
+  /* Every rule that colours text with the accent resolves through this. On white the lime
+     itself measures ~1.14:1 — not dim, invisible — so light borrows --acc-ink. Fills and
+     borders keep the real lime, which is why this is a separate token and not a redefinition
+     of --acc. */
+  --acc-text:var(--acc-ink);
   --amberr:#8a5a00;
   --redd:#a8341f;
 
@@ -4088,3 +4097,23 @@ body:has(.studio-light) .eab-msg{color:#5c6165}
 .lw-lang{margin:0 0 14px;font-size:12.5px;color:var(--faint);line-height:1.55}
 .lw-lang b{color:var(--fg);font-weight:500}
 .lw-lang a{color:var(--fg)}
+
+/* The page behind the light studio.
+   .studio-light paints itself white, but body is shared with the dark surfaces and kept its
+   near-black. That showed as a dark strip in the scrollbar gutter and below the shell where
+   it does not reach the full document height — a white theme with a black edge reads as a
+   rendering fault, not a theme. :has() keeps the decision with the light class rather than
+   adding a second place that has to know which routes are light. */
+body:has(.studio-light){background:#ffffff}
+body:has(.studio-light) ::-webkit-scrollbar-thumb{background:#d3d5d9;border-color:#ffffff}
+body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
+.studio-light{min-height:100vh}
+
+/* The "worked example" note, on white.
+   It was an amber wash at 7% over a near-black panel, which on white is neither a visible
+   tint nor a readable one: the body text measured 3.19:1 and its link 3.15:1, both under AA.
+   A note that says "none of these numbers are yours" is exactly the sentence that must not
+   be hard to read. Warm cream with warm ink keeps the amber intent and clears the bar. */
+.studio-light .lw-example{background:#fdf8ec;border-color:#ead9b8;color:#4a3f2a}
+.studio-light .lw-example a{color:#7a4b00}
+.studio-light .lw-example a:hover{color:#5c3800}

@@ -11,18 +11,23 @@ import StudioNav from "./StudioNav";
 // a second design system layered over the first is what produced the shadowed-rule bugs in
 // the last two passes.
 //
-// Scoped to the creation surfaces on purpose. Publishing, Team, Intelligence, Results and
-// Settings keep the dark treatment they were designed in; converting them is a separate
-// decision about the whole product, not a side effect of redesigning Create.
+// It started scoped to the creation surfaces, with the note that converting the rest was a
+// separate decision about the whole product. That decision has been made: the studio is
+// light throughout. Two surfaces next to each other in opposite treatments read as two
+// products, and the nav rail sits against every one of them.
+//
+// Still a class rather than a stylesheet, and still the same token override — which is the
+// reason this is a small change rather than a rewrite. Anything that reads --bg, --panel,
+// --fg or --line already follows. What does not follow is anything that hardcoded a dark
+// literal, and those are corrected at their own rules rather than by patching over them
+// here.
 //
 // `usePathname` runs during SSR too, so the class is in the first HTML the browser parses
 // and there is no flash of the dark theme before hydration.
 
-const LIGHT_ROUTES = new Set(["/studio", "/studio/create"]);
-
 export default function StudioShell({ children }: { children: React.ReactNode }) {
   const path = usePathname();
-  const light = LIGHT_ROUTES.has(path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path);
+  const light = path === "/studio" || path.startsWith("/studio/");
 
   return (
     <div className={"studio" + (light ? " studio-light" : "")}>
