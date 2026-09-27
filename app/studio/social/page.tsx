@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import { usePoll } from "@/app/components/usePoll";
+import { useEffect } from "react";
+import { workspaceProfile } from "@/lib/studio/workspace-context";
+import { DEFAULT_LANGUAGE, localeLabel, type LanguageCode } from "@/lib/i18n/languages";
 
 // Publishing Dashboard (Cross-Platform Publishing) — connect accounts, compose + publish
 // now or schedule (timezone-aware), and watch the queue, calendar and history. Live from
@@ -29,6 +32,15 @@ export default function SocialDashboard() {
   const [account, setAccount] = useState("");
   const [when, setWhen] = useState("");
   const [busy, setBusy] = useState(false);
+  // What language the queue will write in. Unattended publishing is the one place a wrong
+  // language ships without anyone seeing it first, so the queue states which one it uses.
+  const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
+
+  useEffect(() => {
+    let live = true;
+    void workspaceProfile().then((p) => { if (live && p?.language) setLanguage(p.language); });
+    return () => { live = false; };
+  }, []);
 
   async function refresh() {
     const [a, d, dr] = await Promise.all([
@@ -162,6 +174,10 @@ export default function SocialDashboard() {
 
       <section className="lw-block">
         <h2 className="lw-h2">Up next</h2>
+        <p className="lw-lang">
+          Anything Populr writes for this queue goes out in <b>{localeLabel(language)}</b>, using
+          whichever language is set when the slot runs. <a href="/studio/integrations">Change it in Settings</a>.
+        </p>
         <div className="job-list">
           {jobs.length ? jobs.map((j) => (
             <div key={j.id} className="job-row">

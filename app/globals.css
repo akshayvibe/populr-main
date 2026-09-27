@@ -4070,3 +4070,21 @@ body:has(.studio-light) .eab-msg{color:#5c6165}
   .stu-card{flex-basis:auto;width:100%;min-height:214px}
   .stu-card-pv{height:96px}
 }
+
+/* Workspace language setting.
+   Borrows .cmp-select from the composer rather than defining a second select treatment —
+   two selects that look almost the same is how a design system starts drifting. */
+.lang-set{max-width:60ch}
+.lang-field{display:flex;flex-direction:column;gap:7px}
+.lang-label{font-size:12.5px;color:var(--dim)}
+.lang-select{max-width:340px}
+.lang-select:disabled{opacity:.55;cursor:not-allowed}
+.lang-note{margin:12px 0 0;font-size:12.5px;color:var(--faint);line-height:1.55}
+.lang-note a{color:var(--fg)}
+.lang-facts{margin:18px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:8px}
+.lang-facts li{position:relative;padding-left:16px;font-size:12.5px;color:var(--faint);line-height:1.55}
+.lang-facts li::before{content:"";position:absolute;left:0;top:8px;width:5px;height:5px;border-radius:50%;background:var(--line-2,var(--line))}
+/* The language a queued post will go out in, shown where the queue is. */
+.lw-lang{margin:0 0 14px;font-size:12.5px;color:var(--faint);line-height:1.55}
+.lw-lang b{color:var(--fg);font-weight:500}
+.lw-lang a{color:var(--fg)}
