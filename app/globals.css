@@ -4149,3 +4149,50 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .prefs-swap:hover{opacity:.78}
 .prefs-status{margin:18px 0 0;font-size:12.5px;color:var(--faint);min-height:1.4em}
 @media(max-width:640px){.prefs-grid{grid-template-columns:1fr}}
+
+/* Welcome — the first screen.
+   Its own light surface rather than the studio shell: there is no nav to sit against yet,
+   and a rail of eight destinations is the wrong thing to show someone who has not started.
+   Tokens are declared locally so this page does not depend on which theme class wraps it. */
+.wel{--wbg:#ffffff;--wfg:#15171a;--wdim:#5c6165;--wfaint:#6a7075;--wline:#e7e8ea;
+  --wpanel:#fafafa;--wink:#4a6b00;--wacc:#d5ff72;
+  min-height:100vh;background:var(--wbg);color:var(--wfg);
+  padding:clamp(28px,5vw,64px) 16px clamp(40px,6vw,72px)}
+.wel-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(22px,3vw,32px)}
+.wel-brand{display:flex;align-items:center;gap:9px;color:var(--wfg);margin-bottom:22px}
+.wel-brand span{font-size:16px;font-weight:600;letter-spacing:-.02em}
+.wel-h1{margin:0;font-size:clamp(26px,4.4vw,38px);font-weight:600;letter-spacing:-.032em;line-height:1.1;text-wrap:balance}
+.wel-sub{margin:11px 0 0;max-width:56ch;font-size:15px;line-height:1.6;color:var(--wdim)}
+.wel-card{display:flex;flex-direction:column;gap:clamp(22px,3vw,30px);
+  border:1px solid var(--wline);border-radius:14px;background:var(--wpanel);padding:clamp(18px,3vw,26px)}
+.wel-q-head h2{margin:0;font-size:16px;font-weight:600;letter-spacing:-.012em}
+.wel-q-head p{margin:5px 0 0;font-size:13px;line-height:1.55;color:var(--wfaint);max-width:58ch}
+.wel-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.wel-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+  padding:9px 13px;border:1px solid var(--wline);border-radius:9px;background:#fff;
+  font:inherit;color:var(--wfg);cursor:pointer;text-align:left;min-height:44px;
+  transition:border-color .15s ease,background .15s ease}
+.wel-opt b{font-size:14px;font-weight:500;line-height:1.25}
+.wel-opt span{font-size:11px;color:var(--wfaint)}
+.wel-opt:hover{border-color:#c9ccd1;background:#fcfcfc}
+.wel-opt.on{border-color:var(--wink);background:#f4fbe4}
+.wel-opt.on b{font-weight:600}
+.wel-opt-wide b{font-size:13.5px}
+.wel-tz{margin:13px 0 0;font-size:12.5px;line-height:1.6;color:var(--wfaint)}
+.wel-tz b{color:var(--wfg);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px}
+.wel-swap{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--wink);
+  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.wel-next .label{color:var(--wfaint)}
+.wel-steps{margin:13px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
+.wel-steps li{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:baseline}
+.wel-n{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:var(--wfaint)}
+.wel-st b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em}
+.wel-st em{display:block;margin-top:2px;font-style:normal;font-size:13px;line-height:1.55;color:var(--wfaint)}
+.wel-go-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px}
+.wel-go{padding:12px 26px;border:0;border-radius:10px;background:var(--wacc);color:#1c2606;
+  font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;min-height:46px}
+.wel-go:hover:not(:disabled){background:#c9f95f}
+.wel-go:disabled{opacity:.5;cursor:not-allowed}
+.wel-note{margin:0;flex:1 1 260px;font-size:12.5px;line-height:1.55;color:var(--wfaint)}
+.wel :focus-visible{outline:2px solid var(--wink);outline-offset:2px}
+@media(max-width:520px){.wel-go{width:100%}}

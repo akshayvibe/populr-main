@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { loadState, saveState } from "@/lib/store";
-import { resetWorkspaceContext } from "@/lib/studio/workspace-context";
+import { loadPreferences, savePreferences } from "@/lib/studio/preferences";
 import { DEFAULT_LANGUAGE, LANGUAGE_CODES, localeLabel, type LanguageCode } from "@/lib/i18n/languages";
 import {
   DEFAULT_REGION, REGION_CODES, REGIONS, timezoneOf,
@@ -32,8 +31,8 @@ export default function PreferencesPage() {
   const [language, setLanguage] = useState<LanguageCode>(DEFAULT_LANGUAGE);
   const [location, setLocation] = useState<RegionCode>(DEFAULT_REGION);
   const [status, setStatus] = useState<Status>("idle");
-  /** Nothing to write onto until a business has been analysed. */
-  const [noProfile, setNoProfile] = useState(false);
+  /** Whether a business has actually been analysed. Only changes what the page says. */
+  const [analysed, setAnalysed] = useState(true);
   const [ready, setReady] = useState(false);
 
   // Read through loadState(), which is also what writes — the server first, then
@@ -41,11 +40,11 @@ export default function PreferencesPage() {
   // the case where saving works fine.
   useEffect(() => {
     let live = true;
-    void loadState().then(({ saved }) => {
+    void loadPreferences().then((p) => {
       if (!live) return;
-      if (!saved?.profile) setNoProfile(true);
-      setLanguage(saved?.profile?.language ?? DEFAULT_LANGUAGE);
-      setLocation(saved?.profile?.location ?? DEFAULT_REGION);
+      setLanguage(p.language);
+      setLocation(p.location);
+      setAnalysed(p.analysed);
       setReady(true);
     });
     return () => { live = false; };
@@ -54,11 +53,7 @@ export default function PreferencesPage() {
   const persist = useCallback(async (patch: { language?: LanguageCode; location?: RegionCode }) => {
     setStatus("saving");
     try {
-      const { saved } = await loadState();
-      if (!saved?.profile) { setNoProfile(true); setStatus("idle"); return; }
-      saveState({ ...saved, profile: { ...saved.profile, ...patch } });
-      // The page-load profile cache is now stale, and the composer reads it on mount.
-      resetWorkspaceContext();
+      await savePreferences(patch);
       setStatus("saved");
     } catch {
       setStatus("idle");
@@ -79,7 +74,7 @@ export default function PreferencesPage() {
   const suggestions = suggestedLanguages(location).filter((c) => c !== language);
   // Only worth raising when the region genuinely points somewhere else. English is never
   // "wrong" for a region, so it does not trigger this.
-  const mismatched = ready && !noProfile && !languageMatchesRegion(language, location);
+  const mismatched = ready && !languageMatchesRegion(language, location);
 
   return (
     <section className="st-section prefs">
@@ -92,10 +87,11 @@ export default function PreferencesPage() {
         </p>
       </header>
 
-      {noProfile && (
+      {ready && !analysed && (
         <p className="prefs-empty" role="note">
-          Populr has not analysed a business yet, so there is nothing to save these onto.{" "}
-          <a href="/app">Add your site</a> first and these will stick.
+          These are saved and will be used. Populr has not analysed a business yet, though —{" "}
+          <a href="/app">add your site</a> and it can write from what it finds rather than
+          from the prompt alone.
         </p>
       )}
 
@@ -110,7 +106,7 @@ export default function PreferencesPage() {
               id="pref-language"
               className="cmp-select"
               value={language}
-              disabled={noProfile || !ready}
+              disabled={!ready}
               onChange={(e) => onLanguage(e.target.value as LanguageCode)}
             >
               {LANGUAGE_CODES.map((c) => <option key={c} value={c}>{localeLabel(c)}</option>)}
@@ -134,7 +130,7 @@ export default function PreferencesPage() {
               id="pref-location"
               className="cmp-select"
               value={location}
-              disabled={noProfile || !ready}
+              disabled={!ready}
               onChange={(e) => onLocation(e.target.value as RegionCode)}
             >
               {REGION_CODES.map((c) => <option key={c} value={c}>{REGIONS[c].name}</option>)}

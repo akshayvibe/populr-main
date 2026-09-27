@@ -15,15 +15,32 @@ import { DEFAULT_REGION, REGION_CODES, getWorkspaceRegion, getWorkspaceTimezone,
 const read = (p: string) => readFileSync(new URL(`../${p}`, import.meta.url), "utf8");
 const PREFS = "app/studio/preferences/page.tsx";
 
-describe("one page owns both settings", () => {
-  it("writes them onto the profile through saveState", () => {
-    const src = read(PREFS);
+const WRITER = "lib/studio/preferences.ts";
+
+describe("one writer owns both settings", () => {
+  it("patches the profile rather than replacing it", () => {
+    const src = read(WRITER);
     expect(src).toMatch(/import .*\bsaveState\b.*from "@\/lib\/store"/);
-    // Written as a patch onto the existing profile, so neither setting clobbers the other
-    // or any of the analysed fields around them.
-    expect(src).toMatch(/profile:\s*\{\s*\.\.\.saved\.profile,\s*\.\.\.patch\s*\}/);
-    expect(src).toMatch(/language\?:\s*LanguageCode/);
-    expect(src).toMatch(/location\?:\s*RegionCode/);
+    // A patch, so setting a language cannot drop a location or any analysed field.
+    expect(src).toMatch(/profile:\s*\{\s*\.\.\.\(base\.profile \?\? stubProfile\(\)\),\s*\.\.\.patch\s*\}/);
+  });
+
+  it("creates a profile when there is none, so the first screen can save", () => {
+    const src = read(WRITER);
+    // The welcome page runs before anything is analysed. Every text field stays empty so
+    // hasProfile — !!(name || oneLiner) — still reads false everywhere that asks.
+    expect(src).toContain("stubProfile");
+    expect(src).toMatch(/name:\s*""/);
+    expect(src).toMatch(/oneLiner:\s*""/);
+  });
+
+  it("both screens go through it rather than writing their own", () => {
+    for (const p of [PREFS, "app/welcome/page.tsx"]) {
+      expect(read(p), `${p} does not use the shared writer`).toContain("savePreferences");
+      // Importing the raw store from a screen is the thing that would fork the logic.
+      // Matched on the import, not the word: a comment mentioning saveState is fine.
+      expect(read(p), `${p} imports the store directly`).not.toMatch(/import\s*\{[^}]*\bsaveState\b[^}]*\}\s*from\s*"@\/lib\/store"/);
+    }
   });
 
   it("the composer writes the same language field", () => {
@@ -32,8 +49,9 @@ describe("one page owns both settings", () => {
     expect(src).toMatch(/profile:\s*\{[^}]*language/);
   });
 
-  it("both writers invalidate the profile cache, or the other surface goes stale", () => {
-    for (const p of [PREFS, "app/studio/Composer.tsx"]) {
+  it("every writer invalidates the profile cache, or other surfaces go stale", () => {
+    // workspaceProfile() memoises per page load; the composer reads it on mount.
+    for (const p of [WRITER, "app/studio/Composer.tsx"]) {
       expect(read(p), `${p} does not reset the profile cache`).toContain("resetWorkspaceContext");
     }
   });
