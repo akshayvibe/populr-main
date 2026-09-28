@@ -1,6 +1,6 @@
 "use client";
 
-import { workspaceId } from "@/lib/store";
+import { workspaceId, loadLocal } from "@/lib/store";
 import type { WorkspaceProfile } from "@/lib/creative/studio-brief";
 
 // What the studio already knows, fetched once per page load.
@@ -31,12 +31,23 @@ export function connectedPlatforms(): Promise<string[]> {
   return accountsPromise;
 }
 
-/** The analysed business, or null for a workspace that has never been analysed. */
+/**
+ * The analysed business, or null for a workspace that has never been analysed.
+ *
+ * Falls back to localStorage, which is not a nicety — localStorage is the source of truth in
+ * `lib/store`, and /api/state is a best-effort sync that returns nothing at all when
+ * DATABASE_URL is unset. Asking only the server meant that in local development, and in any
+ * deployment without a database, every consumer of this helper believed the workspace had no
+ * profile: the composer refused to hydrate the saved language and the publishing queue
+ * announced English while the workspace was set to Marathi. Same order of precedence as
+ * loadState() — server first, browser second — so all three surfaces agree.
+ */
 export function workspaceProfile(): Promise<WorkspaceProfile | null> {
   profilePromise ??= fetch(`/api/state?wsid=${encodeURIComponent(workspaceId())}`, { cache: "no-store" })
     .then((r) => r.json())
     .then((d) => (d?.state?.profile as WorkspaceProfile | undefined) ?? null)
-    .catch(() => null);
+    .catch(() => null)
+    .then((p) => p ?? (loadLocal()?.profile as WorkspaceProfile | undefined) ?? null);
   return profilePromise;
 }
 

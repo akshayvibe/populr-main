@@ -1,4 +1,5 @@
 import type { LanguageCode } from "@/lib/i18n/languages";
+import type { RegionCode } from "@/lib/i18n/regions";
 import type { CreativeBriefInput } from "@/lib/creative/types";
 
 // The workspace's business context → a Creative Brief.
@@ -30,6 +31,8 @@ export type WorkspaceProfile = {
   /** What the workspace markets in. Absent means English. Carried here so the studio reads
    *  it from the one profile fetch rather than opening a second one. */
   language?: LanguageCode;
+  /** Where it sells. Same reason: one profile fetch serves every studio surface. */
+  location?: RegionCode;
 };
 
 const clean = (v: string | undefined): string => (v ?? "").trim();

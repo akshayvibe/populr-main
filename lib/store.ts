@@ -2,6 +2,7 @@
 // with best-effort sync to Neon via /api/state when DATABASE_URL is configured.
 
 import type { LanguageCode } from "@/lib/i18n/languages";
+import type { RegionCode } from "@/lib/i18n/regions";
 
 export type Profile = {
   name: string;
@@ -13,6 +14,8 @@ export type Profile = {
   description: string;
   /** What this workspace markets in. Absent means English — see DEFAULT_LANGUAGE. */
   language?: LanguageCode;
+  /** Where it sells. Decides the clock unattended publishing schedules against. */
+  location?: RegionCode;
 };
 
 export type Draft = {
