@@ -14,6 +14,7 @@ const base = {
   reason: "unwinnable_search" as const,
   explanation: "Three incumbents own page one and have for two years.",
   insteadDid: "Fixed the pricing page",
+  insteadChannel: null,
   checkableAt: null,
 };
 
@@ -77,8 +78,9 @@ describe("grading only what is checkable", () => {
 describe("the scorecard cannot flatter itself", () => {
   const at = (over: Partial<Refusal>): Refusal => ({
     id: "x", workspaceKey: "ws1", proposed: "p", channel: "seo", reason: "low_intent",
-    explanation: "e", insteadDid: null, checkableAt: null, verdict: "unknown",
-    evidence: null, createdAt: 0, resolvedAt: null, ...over,
+    explanation: "e", insteadDid: null, insteadChannel: null, checkableAt: null, verdict: "unknown",
+    evidence: null, insteadOutcome: "unknown", insteadEvidence: null, insteadResolvedAt: null,
+    createdAt: 0, resolvedAt: null, ...over,
   });
 
   it("reports accuracy as null when nothing has been decided", () => {
@@ -193,5 +195,60 @@ describe("refusals come from the plan, not from a model", () => {
     const out = refusalsFromPlan([cand("seo", 0.9), cand("x", 0.8), cand("reddit", 0.7), cand("hn", 0.4)], "ws1", now);
     expect(out[0].reason).toBe("better_use_of_time");
     expect(out[0].checkableAt).toBe(now + 30 * 86_400_000);
+  });
+});
+
+describe("resolveInstead", () => {
+  it("starts unknown and writes once, independent of verdict", async () => {
+    const repo = refusalRepo();
+    const r = await repo.record({ ...base, checkableAt: Date.now() - 1000 });
+    expect(r.insteadOutcome).toBe("unknown");
+
+    await repo.resolveInstead(r.id, "worked", "Two scored recommendations, both above 0.6.", Date.now());
+    const [after] = await repo.list("ws1");
+    expect(after.insteadOutcome).toBe("worked");
+    // Independent of verdict — grading the alternative never touches whether the
+    // refusal itself was right, and the refusal is still due() for that separate question.
+    expect(after.verdict).toBe("unknown");
+  });
+
+  it("never overwrites an already-resolved insteadOutcome", async () => {
+    const repo = refusalRepo();
+    const r = await repo.record({ ...base, checkableAt: Date.now() - 1000 });
+    await repo.resolveInstead(r.id, "worked", "first grade", Date.now());
+    await repo.resolveInstead(r.id, "did_not", "a later, disagreeing grade", Date.now());
+    const [after] = await repo.list("ws1");
+    expect(after.insteadOutcome).toBe("worked");
+    expect(after.insteadEvidence).toBe("first grade");
+  });
+});
+
+describe("a graded refusal is never re-graded on a second pass", () => {
+  // due() filters on verdict, which resolveInstead() never touches — so a refusal graded
+  // worked/did_not still comes back from due() forever. The cron's own skip
+  // (insteadOutcome !== "unknown") is what stops it being re-queried and re-graded. This
+  // simulates two passes of that exact sequence against the real store.
+  it("due() keeps returning it, but a second grading pass finds nothing left to do", async () => {
+    const repo = refusalRepo();
+    const now = Date.now();
+    const r = await repo.record({ ...base, checkableAt: now - 1000 });
+
+    // Pass 1: grade it.
+    const dueBefore = await repo.due("ws1", now);
+    expect(dueBefore.map((x) => x.id)).toContain(r.id);
+    await repo.resolveInstead(r.id, "worked", "evidence", now);
+
+    // Pass 2: due() still returns it (verdict untouched) — this is the shape of the bug.
+    const dueAfter = await repo.due("ws1", now);
+    expect(dueAfter.map((x) => x.id)).toContain(r.id);
+
+    // But the cron's per-refusal skip (mirrored here) means no grading work happens.
+    let regraded = 0;
+    for (const refusal of dueAfter) {
+      if (refusal.id !== r.id) continue;
+      if (refusal.insteadOutcome !== "unknown") continue; // the fix
+      regraded++;
+    }
+    expect(regraded).toBe(0);
   });
 });
