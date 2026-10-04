@@ -39,3 +39,31 @@ describe("the shell decides which routes are light", () => {
     expect(src).not.toMatch(/LIGHT_ROUTES/);
   });
 });
+
+describe("the frosted surfaces are actually frosted", () => {
+  it("declares backdrop-filter unprefixed only", () => {
+    // The minifier treats `backdrop-filter` and `-webkit-backdrop-filter` as duplicates and
+    // keeps the last one declared. With the prefixed form written second it kept that and
+    // dropped the standard property — and Chrome ignores -webkit-backdrop-filter, so every
+    // frosted surface silently became a flat translucent panel. The landing nav was the
+    // visible one: page content scrolled straight through it, slicing headings in half.
+    //
+    // Modern Chrome and Safari both support the unprefixed property, so the prefix buys
+    // nothing and costs the declaration it was meant to support.
+    expect(css).not.toContain("-webkit-backdrop-filter");
+    expect(css).toMatch(/[^-]backdrop-filter:\s*blur\(24px\)/);
+  });
+
+  it("keeps --faint readable on a true-black background", () => {
+    // The dark background went to #000. --faint carries the plan card's "Skipped" labels
+    // and every reason under them — the one piece of landing copy that has to be read for
+    // the product to make sense — and the old value measured 4.09:1, under AA.
+    const m = /--faint:\s*(#[0-9a-f]{6})/i.exec(css);
+    expect(m, "--faint not found").toBeTruthy();
+    const hex = m![1].slice(1);
+    const ch = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+      .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+    const L = 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    expect((L + 0.05) / 0.05, `${m![1]} on black`).toBeGreaterThanOrEqual(4.5);
+  });
+});
