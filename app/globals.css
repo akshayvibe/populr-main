@@ -4442,3 +4442,112 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .wel-more{border-style:dashed;background:transparent}
 .wel-more b{color:var(--wfaint);font-weight:450}
 .wel-more:hover b{color:var(--wfg)}
+
+/* ---- touch targets ----
+   Everything tappable reaches 44px on a touch device. Measured at 375px, the footer's
+   nav links were 16px tall, the policy buttons 30px and both logos 35px — fine with a
+   mouse, and a coin-flip with a thumb. Gated on `pointer:coarse` so the desktop layout
+   keeps its tighter rhythm; the links stay inline, they just gain the vertical room a
+   finger needs. (Inline links inside a sentence are exempt from this and left alone.) */
+@media (pointer: coarse) {
+  .landing footer a,
+  .landing footer .foot-btn{min-height:44px;display:inline-flex;align-items:center}
+  .landing footer a:not(.foot-btn):not(.footer-logo){padding:0 2px}
+  .landing .logo,
+  .landing .footer-logo{min-height:44px;display:inline-flex;align-items:center}
+  .landing .hero-form button{min-width:44px;min-height:44px}
+  /* The footer's two rows need a little more air once each row is taller. */
+  .landing footer{gap:14px 10px}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The dashboard, on the light side.
+
+   Same decision as the studio and onboarding: the product is light, the
+   marketing is dark. And the same mechanism — a token override rather than a
+   parallel stylesheet, which is why 505 rules follow without being touched.
+   Only five rules in .appui hardcoded a dark literal; those are restated below
+   and nothing else needed to change.
+
+   Values are the studio's, not new ones. A second light palette that is almost
+   the studio's is how two surfaces start drifting apart.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.appui{
+  --bg:#ffffff;
+  --panel:#fafafa;
+  --panel2:#f3f3f3;
+  --fg:#15171a;
+  --dim:#5c6165;
+  --faint:#6a7075;
+  --line:#e7e8ea;
+  --edge:#e7e8ea;
+  --edge-strong:#d6d8dc;
+  --acc:#d5ff72;          /* fill only */
+  --acc-ink:#4a6b00;      /* the accent where it has to be read */
+  --acc-text:var(--acc-ink);
+  --amberr:#8a5a00;
+  --redd:#a8341f;
+  background:#ffffff;
+  color:var(--fg);
+  background-image:none;  /* the dark shell painted a lime glow behind everything */
+}
+body:has(.appui){background:#ffffff}
+body:has(.appui) ::-webkit-scrollbar-thumb{background:#d3d5d9;border-color:#ffffff}
+body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
+
+/* The five that named a colour instead of a token. */
+.appui .pq-acts .go2:hover{background:#f1f2f4}
+.appui .tb-drop{background:#ffffff;box-shadow:0 18px 44px -20px rgba(16,20,26,.28)}
+.appui .geo-run:hover:not(:disabled){background:#f1f2f4}
+.appui .topbar{background:#ffffff;border-bottom:1px solid var(--line)}
+/* .brief-rec-go keeps its near-black ink: it sits ON the lime fill, both themes. */
+
+/* The terminal strip reads as a terminal, so it stays dark on purpose — it is the
+   one place in the product that is literally a console, and a white console is a
+   worse lie than a dark panel on a light page. */
+.appui .termstrip{background:linear-gradient(180deg,#0b0e0c,#07090a);border-color:#1b211d}
+.appui .termstrip *{color:#c7d2c4}
+
+.appui .mobilenav{background:#ffffff;border-top:1px solid var(--line)}
+
+/* The inverted-button pattern, corrected for a light shell.
+   Nine rules do `background: var(--fg); color: #000` — on dark that is a near-white
+   button with black text, which is right. Flip the theme and --fg becomes near-black,
+   so the fill inverts correctly and the text does not: black on black. The pair has to
+   move together, so the light shell restates the text side. */
+.appui .go,
+.appui .rpill.on,
+.appui .gsc-go,
+.appui .chat-mode button.on,
+.appui .send,
+.appui .nudge-go,
+.appui .authcard .submit,
+.appui .acct-btn.pri{color:#ffffff}
+.appui .social-btn{color:#ffffff}
+/* The wordmark was literally #fff, which on a white bar is nothing at all. */
+.appui .app-wordmark{color:var(--fg)}
+
+/* Dashboard touch targets. The document rows are the ones that matter — they are the
+   primary navigation of this screen and they were 29px tall, which is a miss waiting to
+   happen on a list where the rows sit directly against each other. */
+@media (pointer: coarse) {
+  .appui .docrow{min-height:44px}
+  .appui .avatar,
+  .appui .tb-burger{min-width:44px;min-height:44px}
+  /* The strip has a fixed height, so growing the button alone pushed it past the edge
+     and clipped the label. Grow the strip and let the button fill it. */
+  .appui .termstrip{min-height:44px;align-items:center}
+  .appui .term-toggle{align-self:stretch;display:inline-flex;align-items:center;padding-inline:4px}
+  .appui .home-cta{min-height:46px}
+  .appui .sec-collapse{min-width:44px;min-height:44px}
+}
+
+/* Settings touch targets. The section rail scrolls sideways on a phone, so its tabs are
+   the primary navigation of the screen and were 36px — short enough to miss while the
+   rail is still settling from a swipe. */
+@media (pointer: coarse) {
+  .settings .set-nav{min-height:44px}
+  .settings .set-back{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .settings .conn-btn,
+  .settings .acct-btn{min-height:44px}
+}

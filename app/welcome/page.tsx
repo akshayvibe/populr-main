@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { loadPreferences, savePreferences } from "@/lib/studio/preferences";
 import { DEFAULT_LANGUAGE, LANGUAGE_CODES, LANGUAGES, localeLabel, isEnglish, type LanguageCode } from "@/lib/i18n/languages";
-import { REGION_CODES, REGIONS, timezoneOf, suggestedLanguages, languageMatchesRegion, type RegionCode } from "@/lib/i18n/regions";
+import { DEFAULT_REGION, REGION_CODES, REGIONS, timezoneOf, suggestedLanguages, languageMatchesRegion, type RegionCode } from "@/lib/i18n/regions";
 
 // The first screen.
 //
@@ -30,6 +30,7 @@ export default function WelcomePage() {
   const [saving, setSaving] = useState(false);
   /** Thirty-one language chips is a wall, not a choice. See `shownLanguages`. */
   const [allLangs, setAllLangs] = useState(false);
+  const [allRegions, setAllRegions] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -77,6 +78,14 @@ export default function WelcomePage() {
     const short = [...new Set([DEFAULT_LANGUAGE, ...near, ...(language ? [language] : [])])];
     return LANGUAGE_CODES.filter((c) => short.includes(c));
   }, [allLangs, location, language]);
+
+  // Same treatment for regions. Seventeen chips is a scroll on a phone, and the first four
+  // cover most of who this is for.
+  const shownRegions = useMemo(() => {
+    if (allRegions) return REGION_CODES;
+    const short = new Set([DEFAULT_REGION, ...(location ? [location] : []), "in-mh", "in-tn", "in-ka"]);
+    return REGION_CODES.filter((c) => short.has(c));
+  }, [allRegions, location]);
 
   const ready = language !== null && location !== null;
   // Only when the region genuinely points elsewhere. Someone who picked Marathi for
@@ -136,7 +145,7 @@ export default function WelcomePage() {
               <p>This sets the clock your publishing runs on, so a post set for 9am goes out at 9am.</p>
             </div>
             <div className="wel-opts" role="group" aria-label="Where you sell">
-              {REGION_CODES.map((c) => (
+              {shownRegions.map((c) => (
                 <button
                   key={c}
                   type="button"
@@ -147,6 +156,11 @@ export default function WelcomePage() {
                   <b>{REGIONS[c].name}</b>
                 </button>
               ))}
+              {!allRegions && (
+                <button type="button" className="wel-opt wel-opt-wide wel-more" onClick={() => setAllRegions(true)}>
+                  <b>All {REGION_CODES.length} places</b>
+                </button>
+              )}
             </div>
             {ready && (
               <p className="wel-tz">
