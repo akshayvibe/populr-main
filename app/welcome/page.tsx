@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { loadPreferences, savePreferences } from "@/lib/studio/preferences";
-import { LANGUAGE_CODES, LANGUAGES, localeLabel, isEnglish, type LanguageCode } from "@/lib/i18n/languages";
+import { DEFAULT_LANGUAGE, LANGUAGE_CODES, LANGUAGES, localeLabel, isEnglish, type LanguageCode } from "@/lib/i18n/languages";
 import { REGION_CODES, REGIONS, timezoneOf, suggestedLanguages, languageMatchesRegion, type RegionCode } from "@/lib/i18n/regions";
 
 // The first screen.
@@ -28,6 +28,8 @@ export default function WelcomePage() {
   const [language, setLanguage] = useState<LanguageCode | null>(null);
   const [location, setLocation] = useState<RegionCode | null>(null);
   const [saving, setSaving] = useState(false);
+  /** Thirty-one language chips is a wall, not a choice. See `shownLanguages`. */
+  const [allLangs, setAllLangs] = useState(false);
 
   useEffect(() => {
     let live = true;
@@ -62,6 +64,20 @@ export default function WelcomePage() {
     window.location.href = "/app";
   }, []);
 
+  // A short list first, the full table behind a click.
+  //
+  // The table grew from eleven to thirty-one, and rendering all of it put a wall of chips
+  // in front of the first question anyone is asked. What a person needs on this screen is
+  // the handful plausible for where they sell, plus a way to reach the rest — not proof
+  // that we support Yoruba.
+  const shownLanguages = useMemo(() => {
+    if (allLangs) return LANGUAGE_CODES;
+    const near = location ? suggestedLanguages(location) : [];
+    // Current pick always present, or the selected chip would vanish when the list shortens.
+    const short = [...new Set([DEFAULT_LANGUAGE, ...near, ...(language ? [language] : [])])];
+    return LANGUAGE_CODES.filter((c) => short.includes(c));
+  }, [allLangs, location, language]);
+
   const ready = language !== null && location !== null;
   // Only when the region genuinely points elsewhere. Someone who picked Marathi for
   // Maharashtra has already chosen its primary language, and offering them Hindi as "what
@@ -71,9 +87,6 @@ export default function WelcomePage() {
 
   return (
     <main className="wel">
-      {/* Structural decoration: outlined panels, as if the workspace is being assembled
-          behind the question. Hidden from assistive tech — it says nothing. */}
-      <div className="wel-amb" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
 
       <div className="wel-inner">
         <header className="wel-head">
@@ -97,7 +110,7 @@ export default function WelcomePage() {
               <p>Everything is written natively in it — not translated from English afterwards.</p>
             </div>
             <div className="wel-opts" role="group" aria-label="Marketing language">
-              {LANGUAGE_CODES.map((c) => (
+              {shownLanguages.map((c) => (
                 <button
                   key={c}
                   type="button"
@@ -109,6 +122,11 @@ export default function WelcomePage() {
                   {!isEnglish(c) && <span>{LANGUAGES[c].name}</span>}
                 </button>
               ))}
+              {!allLangs && (
+                <button type="button" className="wel-opt wel-more" onClick={() => setAllLangs(true)}>
+                  <b>All {LANGUAGE_CODES.length} languages</b>
+                </button>
+              )}
             </div>
           </div>
 

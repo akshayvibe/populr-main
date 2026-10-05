@@ -4174,20 +4174,23 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
    ═══════════════════════════════════════════════════════════════════════════ */
 
 .wel{
-  --wbg:#000000;      /* the canvas */
-  --wpanel:#0d0f0e;   /* cards sitting on it */
-  --wraise:#151816;   /* an unselected control */
-  --wline:#1f2422;    /* hairline */
-  --wline-2:#2d3431;  /* hairline, one step up — hover and ambient */
-  --wfg:#f4f7f2;
-  --wdim:#9aa39c;
-  /* 4.62:1 on the raised control, 4.97 on the panel, 5.42 on black. The previous value was
-     computed against black alone and then used inside a pill, where the lighter surface
-     pulls it under AA — a muted colour has to clear every surface it is actually used on,
-     not the darkest one. */
-  --wfaint:#7a847d;
-  --wacc:#d5ff72;
-  --wink:#1c2606;     /* text ON the accent */
+  /* Light, because this is the product rather than the marketing. Same warm cream as the
+     landing band, so crossing from the page into the product is one surface continuing
+     rather than two designs meeting. */
+  --wbg:#f2f0ea;
+  --wpanel:#ffffff;
+  --wraise:#edeae2;   /* an unselected control */
+  --wline:#dedbd2;
+  --wline-2:#c9c5ba;
+  --wfg:#14170f;
+  --wdim:#5a6052;
+  /* Clears every light surface it lands on: band 5.07, white card 5.78, chip 4.81.
+     The previous value was chosen against the band and the card and then used inside a
+     chip, which is a slightly different grey again — the third time this exact mistake
+     has been made, in both themes. The rule is the lightest surface, always. */
+  --wfaint:#616859;
+  --wacc:#d5ff72;     /* fill only */
+  --wink:#1b2606;     /* text ON the accent */
   position:relative;
   min-height:100vh;
   background:var(--wbg);
@@ -4196,38 +4199,27 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
   overflow:hidden;
 }
 
-/* Ambient structure. Pure decoration, hidden from assistive tech. */
-.wel-amb{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.wel-amb i{position:absolute;display:block;border:1px solid var(--wline);border-radius:16px}
-.wel-amb i:nth-child(1){top:12%;left:-4%;width:16%;height:34%}
-.wel-amb i:nth-child(2){top:8%;right:14%;width:12%;height:14%}
-.wel-amb i:nth-child(3){top:7%;right:-3%;width:18%;height:17%;border-color:var(--wline-2)}
-.wel-amb i:nth-child(4){top:30%;right:-6%;width:14%;height:30%}
-.wel-amb i:nth-child(5){bottom:6%;left:2%;width:17%;height:22%;border-color:var(--wline-2)}
-.wel-amb i:nth-child(6){bottom:-4%;left:26%;width:46%;height:16%}
-@media(max-width:760px){.wel-amb{display:none}}
 
 .wel-inner{position:relative;z-index:1;max-width:780px;margin:0 auto;
   display:flex;flex-direction:column;gap:clamp(24px,3vw,34px)}
-
 .wel-brand{display:flex;align-items:center;gap:9px;color:var(--wfg);margin-bottom:clamp(26px,4vw,44px)}
 .wel-brand span{font-size:15px;font-weight:500;letter-spacing:-.02em}
 
-/* Two-tone headline: the statement in white, the qualifier in grey. */
 .wel-h1{margin:0;font-size:clamp(30px,5vw,46px);font-weight:420;letter-spacing:-.038em;
   line-height:1.04;text-wrap:balance}
-.wel-h1 em{font-style:normal;color:var(--wdim)}
+.wel-h1 em{font-style:normal;color:var(--wfaint)}
 .wel-sub{margin:14px 0 0;max-width:52ch;font-size:15px;line-height:1.6;color:var(--wdim)}
 
 .wel-card{display:flex;flex-direction:column;gap:clamp(24px,3vw,32px);
   border:1px solid var(--wline);border-radius:20px;background:var(--wpanel);
   padding:clamp(20px,3vw,30px)}
-
 .wel-q-head h2{margin:0;font-size:16px;font-weight:500;letter-spacing:-.015em}
 .wel-q-head p{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--wfaint);max-width:58ch}
 
 .wel-opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
-/* Unselected: a dark control. Selected: inverted to a light fill. */
+/* Unselected is a quiet tint of the band; selected inverts to near-black. On a light
+   surface the inversion runs the other way round from the dark one, but it is the same
+   move — the chosen thing is the one with the opposite fill. */
 .wel-opt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;
   padding:10px 15px;border:1px solid var(--wline);border-radius:11px;
   background:var(--wraise);font:inherit;color:var(--wdim);cursor:pointer;
@@ -4236,15 +4228,15 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .wel-opt b{font-size:14px;font-weight:450;line-height:1.25}
 .wel-opt span{font-size:10.5px;color:var(--wfaint);letter-spacing:.01em}
 .wel-opt:hover{border-color:var(--wline-2);color:var(--wfg)}
-.wel-opt.on{background:#eef1ec;border-color:#eef1ec;color:#11140f}
+.wel-opt.on{background:#16201a;border-color:#16201a;color:#f2f5ef}
 .wel-opt.on b{font-weight:550}
-.wel-opt.on span{color:#5b625a}
+.wel-opt.on span{color:#a6b0a1}
 .wel-opt-wide b{font-size:13.5px}
 
 .wel-tz{margin:16px 0 0;font-size:12.5px;line-height:1.65;color:var(--wfaint)}
 .wel-tz b{color:var(--wfg);font-weight:400;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;
   padding:2px 7px;border:1px solid var(--wline);border-radius:6px;background:var(--wraise)}
-.wel-swap{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--wacc);
+.wel-swap{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:#46610a;
   text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 .wel-swap:hover{opacity:.8}
 
@@ -4258,7 +4250,7 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .wel-st em{display:block;margin-top:3px;font-style:normal;font-size:13px;line-height:1.55;color:var(--wfaint)}
 
 .wel-go-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px}
-/* The one saturated thing on the page. */
+/* Still the one saturated thing on the page. */
 .wel-go{padding:13px 30px;border:0;border-radius:11px;background:var(--wacc);color:var(--wink);
   font:inherit;font-size:14.5px;font-weight:550;letter-spacing:-.01em;cursor:pointer;min-height:48px;
   transition:background .14s ease,transform .14s ease}
@@ -4267,9 +4259,9 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .wel-note{margin:0;flex:1 1 240px;font-size:12.5px;line-height:1.55;color:var(--wfaint)}
 .wel-empty{margin:0;padding:14px 17px;border:1px solid var(--wline);border-radius:12px;
   background:var(--wpanel);font-size:13px;line-height:1.55;color:var(--wdim)}
-.wel-empty a{color:var(--wacc)}
+.wel-empty a{color:#46610a}
 
-.wel :focus-visible{outline:2px solid var(--wacc);outline-offset:2px}
+.wel :focus-visible{outline:2px solid #46610a;outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.wel-go:hover:not(:disabled){transform:none}}
 @media(max-width:520px){.wel-go{width:100%}}
 
@@ -4368,7 +4360,7 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
      The first attempt used the dark theme's grey, which is 2.36:1 here — the greys that
      read as "muted" on black are invisible on cream, and a two-tone heading whose second
      clause cannot be read is just a heading with a missing half. */
-  --band-mute:#666d5f;
+  --band-mute:#616859;
   background:var(--band-bg);
   color:var(--band-fg);
   margin:clamp(10px,1.6vw,22px);
@@ -4423,3 +4415,30 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .landing .band-lede{margin-top:18px;max-width:30ch;font-size:clamp(23px,3.1vw,34px);line-height:1.18;
   letter-spacing:-.028em;font-weight:420;color:var(--band-fg);text-wrap:balance}
 .landing .band-lede em{font-style:normal;color:var(--band-mute)}
+
+/* ---- hero, left-aligned and corner-anchored ---- */
+.landing .hero-in{text-align:left;display:flex;flex-direction:column;align-items:flex-start;
+  min-height:clamp(380px,46vh,560px);justify-content:center}
+.landing .hero-in .pill{margin-bottom:clamp(20px,3vw,34px)}
+.landing header h1{margin-top:0;max-width:17ch}
+/* The qualifier drops to grey and to a smaller size, so the first three words carry the
+   page and the rest explains it without competing. */
+.landing header h1 .headline-tail{display:block;margin-top:.16em;font-size:.47em;
+  font-weight:380;letter-spacing:-.022em;line-height:1.1;color:var(--faint);max-width:22ch}
+.landing header .sub{margin-left:0;margin-right:0;max-width:52ch;text-align:left}
+.landing header .hero-form{margin-left:0;margin-right:0}
+.landing header .under{text-align:left;margin-left:0;margin-right:0}
+
+/* ---- the product shot, now its own section ---- */
+.landing section.shot{padding-block:clamp(44px,5.5vw,76px)}
+.landing section.shot .frame{margin-top:0}
+
+@media(max-width:720px){
+  .landing .hero-in{min-height:0}
+  .landing header h1 .headline-tail{font-size:.56em}
+}
+/* The escape hatch to the full language table. Dashed, so it reads as "more of these"
+   rather than as another option competing with them. */
+.wel-more{border-style:dashed;background:transparent}
+.wel-more b{color:var(--wfaint);font-weight:450}
+.wel-more:hover b{color:var(--wfg)}

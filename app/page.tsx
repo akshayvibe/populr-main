@@ -1,6 +1,13 @@
 "use client";
 import { useEffect, useRef } from "react";
 import { captureReferral } from "@/lib/referral-client";
+// Counted from the real tables rather than typed in. The first version of this section
+// said 31 languages when there were 32 — a number on a landing page is a claim, and a
+// hardcoded one is a claim with an expiry date nobody sees pass.
+import { LANGUAGE_CODES } from "@/lib/i18n/languages";
+import { REFUSAL_REASONS } from "@/lib/refusals/types";
+
+const INDIAN_LANGUAGES = LANGUAGE_CODES.filter((c) => c.endsWith("-IN")).length;
 
 /**
  * The team, as a studio would list it.
@@ -162,10 +169,14 @@ export default function Landing() {
         <div className="hero-mesh" aria-hidden="true"><i /><i /><i /><i /></div>
         <div className="hero-grain" aria-hidden="true" />
         <canvas className="dots" ref={dotsRef} aria-hidden="true" />
-        <div className="wrap" style={{ position: "relative", zIndex: 2 }}>
+        <div className="wrap hero-in" style={{ position: "relative", zIndex: 2 }}>
           <span className="pill"><i />now in early access</span>
-          <h1>Meet <span className="name">Populr.</span><br /><span className="headline-tail">Your AI CMO.</span></h1>
-          <p className="sub">Paste your website. Populr reads it, works out your positioning, and builds today&apos;s plan.</p>
+          {/* Left-aligned and pinned to the corners rather than stacked down the middle.
+              A centred hero puts every line in the same place and gives the eye nothing to
+              travel along; the reference anchors the statement top-left and the action
+              below it, and lets the bloom hold the rest of the frame. */}
+          <h1>Your AI CMO. <span className="headline-tail">It decides what is worth doing, then does it.</span></h1>
+          <p className="sub">Paste your website. Populr reads it, works out your positioning, and builds today&apos;s plan — and tells you what it refused.</p>
 
           {/* The input is the hero.
               It used to be two buttons here and the real thing a page away, which asks
@@ -225,6 +236,16 @@ export default function Landing() {
               retracted is worse than a weaker one that holds. */}
           <p className="under">free for a month · no card · you approve anything that matters</p>
 
+        </div>
+      </header>
+
+      {/* The product, shown rather than described.
+          It used to sit inside the hero, under the input, which made the first screen carry
+          a headline, a form and a whole dashboard at once. The reference gives its product
+          shot a section of its own, and the frame reads as software precisely because it is
+          not competing with the statement above it. */}
+      <section id="plan" className="shot">
+        <div className="wrap">
           {/* The product frame.
               Arcade's hero ends on a framed screenshot of the app. The frame is the whole
               trick: the same content in a bare div reads as a picture of software, and
@@ -261,7 +282,7 @@ export default function Landing() {
             </figcaption>
           </figure>
         </div>
-      </header>
+      </section>
 
       {/* How it works, told as three acts rather than three features.
           
@@ -306,12 +327,12 @@ export default function Landing() {
               </div>
               <div className="dec-stat">
                 <span className="dec-k">Languages it writes natively</span>
-                <b>31</b>
-                <em>11 of them Indian</em>
+                <b>{LANGUAGE_CODES.length}</b>
+                <em>{INDIAN_LANGUAGES} of them Indian</em>
               </div>
               <div className="dec-stat">
                 <span className="dec-k">Reasons it can give for declining</span>
-                <b>6</b>
+                <b>{REFUSAL_REASONS.length}</b>
                 <em>a closed set, so they can be counted</em>
               </div>
             </div>
