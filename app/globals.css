@@ -4640,3 +4640,73 @@ body:has(.tm) ::selection{background:#e8ffb0;color:#15171a}
 .tm-warn{color:var(--amberr)}
 .tm-b-note::before{background:var(--amberr)}
 .tm-b-stop::before{background:var(--redd)}
+
+/* Campaigns, on the light side.
+   It renders outside the .appui shell — app/app/layout.tsx returns children untouched —
+   so the dashboard's override never reached it and this was still dark while everything
+   around it had moved. Same values again, for the same reason. */
+.missions{
+  --bg:#ffffff; --panel:#fafafa; --panel2:#f3f3f3;
+  --fg:#15171a; --dim:#5c6165; --faint:#6a7075;
+  --line:#e7e8ea; --edge:#e7e8ea; --edge-strong:#d6d8dc;
+  --acc:#d5ff72; --acc-ink:#4a6b00; --acc-text:var(--acc-ink);
+  --amberr:#8a5a00; --redd:#a8341f;
+  background:#ffffff; color:var(--fg); min-height:100vh;
+}
+body:has(.missions){background:#ffffff}
+body:has(.missions) ::-webkit-scrollbar-thumb{background:#d3d5d9;border-color:#ffffff}
+/* The four that named a colour instead of a token. */
+.missions .m-wordmark{color:var(--fg)}
+.missions .m-astatus[data-s="published"]{color:var(--fg)}
+.missions .m-txmenu{background:#ffffff;box-shadow:0 18px 44px -20px rgba(16,20,26,.28)}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The hero, composed rather than stacked.
+
+   What was wrong was not the type. Pill, headline, copy, form and footnote sat
+   in one column in the middle of the panel with even gaps — which is a list,
+   not a composition. The references all do the same thing instead: the claim
+   takes the top, the action sits on the floor, and the distance between them
+   is the point. That gap is what makes a hero feel like a room rather than a
+   paragraph, and it is the one thing a centred stack can never have.
+
+   So the panel is tall, the statement claims the top-left, the input sits at
+   the bottom edge, and the bloom owns the space between them.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.landing .hero-in{
+  display:flex;flex-direction:column;justify-content:space-between;align-items:stretch;
+  min-height:min(78vh,720px);gap:clamp(40px,8vh,96px);text-align:left;
+}
+.landing .hero-top{display:flex;flex-direction:column;align-items:flex-start}
+.landing .hero-act{display:flex;flex-direction:column;align-items:flex-start;max-width:600px}
+
+/* Bigger, and allowed to be the only thing at the top. */
+.landing header h1{
+  margin-top:clamp(18px,3vw,30px);
+  font-size:clamp(46px,7.6vw,104px);
+  line-height:.92;letter-spacing:-.05em;font-weight:400;max-width:15ch;
+}
+.landing header h1 .headline-tail{
+  display:block;margin-top:.2em;font-size:.4em;font-weight:360;
+  letter-spacing:-.02em;line-height:1.12;color:var(--faint);max-width:26ch;
+}
+.landing header .sub{margin:0 0 clamp(18px,2.4vw,26px);max-width:50ch;font-size:clamp(14.5px,1.35vw,16.5px)}
+.landing header .under{margin-top:14px}
+
+/* A bloom that is actually visible, and off-centre so it reads as light entering
+   the frame rather than as a gradient someone applied to it. */
+.landing header::before{
+  width:min(92vw,1080px);height:min(92vw,1080px);aspect-ratio:auto;
+  left:auto;right:-14%;top:-24%;
+  background:
+    radial-gradient(closest-side, rgba(213,255,114,.26), rgba(213,255,114,.07) 55%, transparent 75%),
+    radial-gradient(closest-side, rgba(120,190,70,.16), transparent 70%);
+  filter:blur(90px);opacity:.75;
+}
+
+@media(max-width:760px){
+  .landing .hero-in{min-height:0;gap:36px}
+  .landing header h1{font-size:clamp(38px,11.5vw,56px);letter-spacing:-.04em}
+  .landing header h1 .headline-tail{font-size:.52em}
+  .landing header::before{right:-30%;top:-10%;opacity:.6}
+}

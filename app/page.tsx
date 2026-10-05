@@ -170,12 +170,17 @@ export default function Landing() {
         <div className="hero-grain" aria-hidden="true" />
         <canvas className="dots" ref={dotsRef} aria-hidden="true" />
         <div className="wrap hero-in" style={{ position: "relative", zIndex: 2 }}>
+          <div className="hero-top">
           <span className="pill"><i />now in early access</span>
           {/* Left-aligned and pinned to the corners rather than stacked down the middle.
               A centred hero puts every line in the same place and gives the eye nothing to
               travel along; the reference anchors the statement top-left and the action
               below it, and lets the bloom hold the rest of the frame. */}
           <h1>Your AI CMO. <span className="headline-tail">It decides what is worth doing, then does it.</span></h1>
+          </div>
+
+          {/* The action band, pinned to the foot of the panel. */}
+          <div className="hero-act">
           <p className="sub">Paste your website. Populr reads it, works out your positioning, and builds today&apos;s plan — and tells you what it refused.</p>
 
           {/* The input is the hero.
@@ -235,6 +240,7 @@ export default function Landing() {
               true the moment routine posts publish on their own. A line that has to be
               retracted is worse than a weaker one that holds. */}
           <p className="under">free for a month · no card · you approve anything that matters</p>
+          </div>
 
         </div>
       </header>
