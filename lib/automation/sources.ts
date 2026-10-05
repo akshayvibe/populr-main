@@ -133,6 +133,10 @@ async function fromAiQueue(slot: QueueItem, deps: ResolveDeps): Promise<Resolved
     platforms: [slot.platform as SocialPlatform],
     now: deps.now,
     language,
+  }, {
+    // The queue. Nobody is watching this one, so a slow provider that writes better copy
+    // is the right trade — which is the opposite of the trade a composer would make.
+    mode: "background",
   }).catch(() => null);
 
   if (!result) return null;

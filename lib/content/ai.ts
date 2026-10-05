@@ -1,4 +1,5 @@
-import { isEnglish, language, languageCode, servedBySarvam } from "@/lib/i18n/languages";
+import { isEnglish, language, languageCode } from "@/lib/i18n/languages";
+import { routeGeneration, type GenerationMode } from "@/lib/services/model-router";
 import { generateText, configuredProviderNames } from "@/lib/services/llm";
 import { CRAFT_RULES, CRAFT_BANS, POST_SHAPES, INTERACTION, DISCOVERY, formFor, scoreDraft, rewriteNote } from "./craft";
 import { extractJson, LlmJsonError } from "@/lib/llm-json";
@@ -274,6 +275,14 @@ export async function composeWithAi(
      * inside the cache window returns the post they were trying to get away from.
      */
     attempt?: number;
+    /**
+     * Whether somebody is waiting on this.
+     *
+     * Carried so routing and the logs can tell a founder watching a composer from the queue
+     * running at 6am. Defaults to interactive: a caller that has not thought about it is
+     * far more likely to be a request with a person on the other end than a batch job.
+     */
+    mode?: GenerationMode;
   } = {},
 ): Promise<ComposeResult> {
   if (configuredProviderNames().length === 0) {
@@ -295,19 +304,32 @@ export async function composeWithAi(
   // states intent, and a future change that moves the language instruction elsewhere would
   // silently start serving a Hindi request the English post it cached ten minutes ago.
   const cacheSalt = `compose:${dayKey(input.now)}:${languageCode(input.language)}:${opts.attempt ?? 0}`;
-  // Sarvam first for the languages Sarvam is actually trained for.
+  // Who writes this is a routing decision, and it is not made here.
   //
-  // This used to read "not English, therefore Sarvam", which was true while the table held
-  // eleven Indian languages and became wrong the moment it held French and Thai — those
-  // would have been sent to an Indian-language model first, burning the primary slot on a
-  // provider that cannot serve them.
+  // This used to be an `if` on a provider name — first "not English, therefore Sarvam",
+  // then a capability check once the language table grew past India. Both were the content
+  // layer knowing which vendor is good at what, which is knowledge it has no business
+  // holding and the kind that multiplies one provider at a time.
   //
-  // Still a preference, not a switch: generateText moves it to the front and leaves every
-  // other provider behind it, so an outage costs quality rather than the post. English and
-  // every non-Indic language resolve exactly as they did before this existed.
-  const prefer = servedBySarvam(languageCode(input.language)) && !isEnglish(languageCode(input.language))
-    ? ("sarvam" as const)
-    : undefined;
+  // routeGeneration answers from PROVIDERS[].capabilities, so adding a provider is a row in
+  // that table rather than an edit here. It returns a preference, never a restriction:
+  // generateText moves it to the front and leaves everyone else reachable behind it.
+  const route = routeGeneration({
+    language: input.language,
+    mode: opts.mode ?? "interactive",
+  });
+  const prefer = route.preferProvider;
+  // The decision, before the result, so a log reader can tell "we asked for Sarvam and it
+  // failed" from "we never asked for Sarvam". No prompt, no business content — a language
+  // code, a mode and a reason string are enough to answer both questions.
+  console.info(JSON.stringify({
+    event: "generation_routed",
+    tenant: input.tenant,
+    language: languageCode(input.language),
+    mode: opts.mode ?? "interactive",
+    preferProvider: route.preferProvider ?? null,
+    reason: route.reason,
+  }));
   const result = await generateText({
     prompt: buildPrompt(input, ctx),
     cacheSalt,
@@ -317,6 +339,20 @@ export async function composeWithAi(
     // receive exactly the prompt they received before this existed.
     promptFor: (name) => (name === "sarvam" ? buildCompactPrompt(input, ctx) : undefined),
   });
+  console.info(JSON.stringify({
+    event: "generation_result",
+    tenant: input.tenant,
+    language: languageCode(input.language),
+    mode: opts.mode ?? "interactive",
+    preferProvider: route.preferProvider ?? null,
+    provider: result.ok ? result.provider : null,
+    model: result.ok ? result.model : null,
+    // The question the pair answers: did the preferred provider actually write this, or
+    // did something behind it cover?
+    usedPreferred: result.ok ? result.provider === route.preferProvider : false,
+    ok: result.ok,
+    cached: result.ok ? Boolean(result.cached) : false,
+  }));
   if (!result.ok) {
     return deterministicResult(input, `Every AI provider failed (${result.error}). This draft is from the built-in composer.`);
   }

@@ -65,7 +65,9 @@ export async function POST(req: NextRequest) {
       now: Date.now(),
       // "Give me another one" has to reach the cache key or it is not another one. Clamped
       // because this is the only thing a caller can vary freely to force fresh model calls.
-    }, { signal: req.signal, attempt: Math.min(20, Math.max(0, Number(body.attempt) || 0)) });
+      // Somebody is on the other end of this one — the request is cancellable precisely
+      // because they can walk away. Stated rather than inferred from the route's name.
+    }, { signal: req.signal, attempt: Math.min(20, Math.max(0, Number(body.attempt) || 0)), mode: "interactive" });
     const composed = generation.composed;
 
     // Metadata the Learning Engine can correlate with what these posts go on to do.

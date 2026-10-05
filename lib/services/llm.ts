@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { LANGUAGE_CODES, servedBySarvam } from "@/lib/i18n/languages";
 import { db, type Sql } from "@/lib/db";
 import {
   sha256,
@@ -32,17 +33,41 @@ type ProviderConfig = {
   models: string[];
   authHeader: "Authorization" | "x-goog-api-key";
   kind: "openai_compatible" | "gemini";
+  /** What this provider can do. One place, so routing never has to know provider names. */
+  capabilities: ProviderCapabilities;
+};
+
+export type LatencyClass = "fast" | "medium" | "slow";
+
+/**
+ * What a provider supports, declared once beside the provider.
+ *
+ * The router reads these rather than provider names, so adding a provider is a row in
+ * PROVIDERS rather than an `if` in the router — which is the whole point of the type. It
+ * carries only fields something actually reads today; a speculative capability is a field
+ * that will be wrong by the time anyone needs it.
+ */
+export type ProviderCapabilities = {
+  /**
+   * Language codes this provider is specifically trained for. Absent means general
+   * purpose — it will answer in anything, without being the best choice for any of it.
+   */
+  languages?: readonly string[];
   /**
    * Completion budget, when the shared one is wrong for this provider.
    *
-   * This is not a knob for "give it more room and hope". A reasoning model spends the
-   * completion allowance thinking before it writes, so for those the budget is a floor to
-   * clear rather than a ceiling to stay under — below it they return no content at all,
-   * which is a worse failure than a short answer because the retry logic cannot see it.
+   * Not a knob for "give it more room and hope". A reasoning model spends the completion
+   * allowance thinking before it writes, so for those the budget is a floor to clear
+   * rather than a ceiling to stay under — below it they return no content at all, which
+   * is a worse failure than a short answer because the retry logic cannot see it.
    */
   maxOutputTokens?: number;
   /** Request timeout, when a provider is legitimately slower than the shared one allows. */
   timeoutMs?: number;
+  /** Measured, not assumed. See each provider's own note. */
+  latencyClass?: LatencyClass;
+  /** Whether the provider's API streams tokens at all — not whether it feels fast. */
+  supportsStreaming?: boolean;
 };
 
 // Cap on generated tokens. 1024 gives full deliverables (articles, docs, multi-part
@@ -185,6 +210,9 @@ export const PROVIDERS: ProviderConfig[] = [
     ]),
     authHeader: "x-goog-api-key",
     kind: "gemini",
+    // No `languages`: general purpose. It will answer in anything and is the best choice
+    // for nothing in particular, which is exactly what absent means here.
+    capabilities: { latencyClass: "fast", supportsStreaming: true },
   },
   {
     name: "groq",
@@ -223,6 +251,7 @@ export const PROVIDERS: ProviderConfig[] = [
     ]),
     authHeader: "Authorization",
     kind: "openai_compatible",
+    capabilities: { latencyClass: "fast", supportsStreaming: true },
   },
   {
     // Last-resort fallback (only if an OpenAI key with billing is set).
@@ -233,6 +262,7 @@ export const PROVIDERS: ProviderConfig[] = [
     models: [override("OPENAI_MODEL", process.env.OPENAI_MODEL) || "gpt-4o-mini"],
     authHeader: "Authorization",
     kind: "openai_compatible",
+    capabilities: { latencyClass: "medium", supportsStreaming: true },
   },
   {
     // India-first models, for workflows that ask for them by name.
@@ -269,18 +299,31 @@ export const PROVIDERS: ProviderConfig[] = [
     ]),
     authHeader: "Authorization",
     kind: "openai_compatible",
-    // Measured, not guessed. sarvam-105b is a reasoning model and spends the completion
-    // budget deliberating before it writes: on the compact compose brief it used 6,358
-    // completion tokens to return valid Marathi JSON. At the shared 4,096 it consumed the
-    // whole allowance thinking and returned content: null with finish_reason "length" —
-    // every single time, in 22 seconds, for nothing.
-    //
-    // 12,288 clears that with headroom. It is a floor for this model rather than a licence
-    // to ramble: the model stops when it is done, and a shorter answer costs nothing.
-    maxOutputTokens: 12_288,
-    // And it is slow when it does answer — 39 seconds for the call above. The shared 45s
-    // timeout would turn a working request into a flake.
-    timeoutMs: 120_000,
+    capabilities: {
+      // One source of truth. The language table already records which languages Sarvam is
+      // trained for; restating the list here would be a second copy to keep in step, and
+      // the first thing to drift the next time a language is added.
+      languages: LANGUAGE_CODES.filter(servedBySarvam),
+      // Measured, not guessed. sarvam-105b is a reasoning model and spends the completion
+      // budget deliberating before it writes: on the compact compose brief it used 6,358
+      // completion tokens to return valid Marathi JSON. At the shared 4,096 it consumed
+      // the whole allowance thinking and returned content: null with finish_reason
+      // "length" — every time, in 22 seconds, for nothing.
+      //
+      // 12,288 clears that with headroom. A floor for this model rather than a licence to
+      // ramble: it stops when it is done, and a shorter answer costs nothing.
+      maxOutputTokens: 12_288,
+      // And it is slow when it does answer — 39 seconds measured. The shared 45s timeout
+      // would turn a working request into a flake.
+      timeoutMs: 120_000,
+      latencyClass: "slow",
+      // The API streams, OpenAI-style SSE. Worth recording precisely, because it does not
+      // mean what it usually means: the reasoning arrives on delta.reasoning_content and
+      // the answer on delta.content, and on a measured run the first CONTENT chunk landed
+      // at 14.0s after 1,652 reasoning chunks. Streaming shortens the wait; it does not
+      // remove it, so a surface using this still needs a progress state.
+      supportsStreaming: true,
+    },
   },
 ];
 
@@ -355,14 +398,14 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
     keyPrefixMatch: provider.prefix ? key.startsWith(provider.prefix) : true,
     promptChars,
     estPromptTokens: estTokens(promptChars),
-    maxOutputTokens: provider.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+    maxOutputTokens: provider.capabilities.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
     retried,
     appUrlConfigured: Boolean(process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL),
   });
 
-  const maxOutput = provider.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
+  const maxOutput = provider.capabilities.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), provider.timeoutMs ?? 45_000);
+  const timeout = setTimeout(() => controller.abort(), provider.capabilities.timeoutMs ?? 45_000);
   try {
     const requestBody =
       provider.kind === "gemini"
