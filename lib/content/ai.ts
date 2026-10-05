@@ -338,6 +338,10 @@ export async function composeWithAi(
     // Only Sarvam. Returning undefined for everything else means Groq, Gemini and OpenAI
     // receive exactly the prompt they received before this existed.
     promptFor: (name) => (name === "sarvam" ? buildCompactPrompt(input, ctx) : undefined),
+    // The caller's cancellation, now reaching the provider request rather than stopping at
+    // the checks between steps. A cancelled Marathi compose used to leave a 55-second
+    // Sarvam call running and billed.
+    signal: opts.signal,
   });
   console.info(JSON.stringify({
     event: "generation_result",
@@ -427,6 +431,8 @@ export async function composeWithAi(
       cacheSalt: `${cacheSalt}:rewrite`,
       temperature: COMPOSE_TEMPERATURE,
       preferProvider: prefer,
+      // The rewrite is a second provider call and just as cancellable as the first.
+      signal: opts.signal,
     });
     if (retry.ok && retry.text.trim()) {
       const after = scoreDraft(retry.text.trim(), languageCode(input.language));

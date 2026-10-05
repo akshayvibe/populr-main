@@ -384,7 +384,9 @@ function isUnsupportedModelAttempt(kind: string, body: string) {
   return /(model .*not found|model .*unavailable|unsupported model|does not exist)/.test(text);
 }
 
-async function callProvider(provider: ProviderConfig, model: string, key: string, prompt: string, requestId: string, retried = false, temperature: number = LLM_TEMPERATURE): Promise<{ ok: true; text: string } | { ok: false; attempt: LLMAttempt }> {
+async function callProvider(provider: ProviderConfig, model: string, key: string, prompt: string, requestId: string, retried = false, temperature: number = LLM_TEMPERATURE,
+  signal?: AbortSignal,
+): Promise<{ ok: true; text: string } | { ok: false; attempt: LLMAttempt }> {
   const started = Date.now();
   const promptChars = prompt.length;
   logEvent("llm_generate_attempt", {
@@ -406,6 +408,14 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
   const maxOutput = provider.capabilities.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), provider.capabilities.timeoutMs ?? 45_000);
+  // The caller's cancellation and our own timeout both abort the same request, and the
+  // catch below has to be able to tell them apart — a timeout is worth retrying and a
+  // person closing the tab is not.
+  const onAbort = () => controller.abort();
+  if (signal) {
+    if (signal.aborted) controller.abort();
+    else signal.addEventListener("abort", onAbort, { once: true });
+  }
   try {
     const requestBody =
       provider.kind === "gemini"
@@ -544,7 +554,12 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
   } catch (error) {
     const elapsedMs = Date.now() - started;
     const body = error instanceof Error ? error.message : String(error);
-    const kind = error instanceof Error && error.name === "AbortError" ? "timeout" : "network_error";
+    // Cancelled by the caller, not by our timeout. Checked first because both surface as
+    // the same AbortError, and treating a cancellation as a timeout would retry it twice
+    // and then try every other provider — for a request nobody is waiting for any more.
+    const kind = signal?.aborted
+      ? "cancelled"
+      : error instanceof Error && error.name === "AbortError" ? "timeout" : "network_error";
     logEvent("llm_provider_health", {
       requestId,
       provider: provider.name,
@@ -570,6 +585,7 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
     };
   } finally {
     clearTimeout(timeout);
+    signal?.removeEventListener("abort", onAbort);
   }
 }
 
@@ -730,7 +746,9 @@ async function siteSummary(sql: Sql | null, url: string, requestId: string): Pro
 
 type GenResult =
   | { ok: true; text: string; provider: string; model: string; retried: boolean }
-  | { ok: false; lastAttempt: LLMAttempt | null };
+  /** `cancelled` separates "the caller left" from "everything failed" — the first is not
+   *  an outage and must not be reported, retried or fallen back from as if it were. */
+  | { ok: false; lastAttempt: LLMAttempt | null; cancelled?: boolean };
 
 // Per-instance in-flight de-duplication: concurrent requests for the same cacheKey share
 // one generation instead of each firing its own LLM chain (thundering-herd guard). This is
@@ -817,6 +835,14 @@ export async function generateText(opts: {
    * which is what every existing caller does and what every existing caller keeps doing.
    */
   promptFor?: (provider: ProviderName) => string | undefined;
+  /**
+   * The caller's cancellation, carried all the way to the provider request.
+   *
+   * Without it an abandoned generation keeps running and keeps costing: a cancelled
+   * Marathi compose left a 55-second Sarvam call in flight, billed in full, for output
+   * nobody would read. Optional, so every existing caller is unchanged.
+   */
+  signal?: AbortSignal;
 }): Promise<GenerateResult> {
   const requestId = opts.requestId || randomUUID();
   const started = Date.now();
@@ -871,14 +897,21 @@ export async function generateText(opts: {
     provider: for (const { provider, key } of configuredProviders) {
       model: for (const model of provider.models) {
         if (deadModels.has(deadKey(provider.name, model))) continue model;
+        if (opts.signal?.aborted) return { ok: false, lastAttempt, cancelled: true };
         const prompt = promptFor(provider.name);
-        let attempt = await callProvider(provider, model, key, prompt, requestId, false, temperature);
+        let attempt = await callProvider(provider, model, key, prompt, requestId, false, temperature, opts.signal);
         if (attempt.ok) {
           if (sql) await putCachedAnalysis(sql, cacheKey, opts.url || null, attempt.text, provider.name, model);
           return { ok: true, text: attempt.text, provider: provider.name, model, retried: false };
         }
         let currentAttempt = attempt.attempt;
         lastAttempt = currentAttempt;
+        // Nobody is waiting any more. Trying the next model, then the next provider, would
+        // spend real money finishing work that has already been abandoned.
+        if (currentAttempt.kind === "cancelled") {
+          logEvent("llm_generate_cancelled", { requestId, provider: provider.name, model });
+          return { ok: false, lastAttempt, cancelled: true };
+        }
         if (isUnsupportedModelAttempt(currentAttempt.kind, currentAttempt.body)) {
           // Permanent for this key — never ask again this process.
           deadModels.add(deadKey(provider.name, model));
@@ -901,14 +934,19 @@ export async function generateText(opts: {
           continue model;
         }
         for (const delayMs of [2000, 4000]) {
+          if (opts.signal?.aborted) return { ok: false, lastAttempt, cancelled: true };
           await sleep(delayMs);
-          attempt = await callProvider(provider, model, key, prompt, requestId, true, temperature);
+          attempt = await callProvider(provider, model, key, prompt, requestId, true, temperature, opts.signal);
           if (attempt.ok) {
             if (sql) await putCachedAnalysis(sql, cacheKey, opts.url || null, attempt.text, provider.name, model);
             return { ok: true, text: attempt.text, provider: provider.name, model, retried: true };
           }
           currentAttempt = attempt.attempt;
           lastAttempt = currentAttempt;
+          if (currentAttempt.kind === "cancelled") {
+            logEvent("llm_generate_cancelled", { requestId, provider: provider.name, model });
+            return { ok: false, lastAttempt, cancelled: true };
+          }
           if (isUnsupportedModelAttempt(currentAttempt.kind, currentAttempt.body)) {
             deadModels.add(deadKey(provider.name, model));
             continue model;
@@ -936,6 +974,18 @@ export async function generateText(opts: {
   }
 
   const lastAttempt = result.lastAttempt;
+
+  // Cancelled, not broken.
+  //
+  // Reported separately because everything below treats this as an outage: it logs
+  // exhaustedProviders, serves a stale cached answer in place of the real one, and tells
+  // the caller our providers are busy. None of that is true when the caller simply left,
+  // and a stale answer for an abandoned request is worse than no answer.
+  if (result.cancelled) {
+    logEvent("llm_generate_complete", { requestId, provider: lastAttempt?.provider || null, model: lastAttempt?.model || null, status: 0, elapsedMs: Date.now() - started, cancelled: true });
+    return { ok: false, status: 499, error: "cancelled", message: "The request was cancelled." };
+  }
+
   logEvent("llm_generate_complete", { requestId, provider: lastAttempt?.provider || null, model: lastAttempt?.model || null, status: lastAttempt?.status || 0, elapsedMs: Date.now() - started, exhaustedProviders: true });
 
   if (sql) {
