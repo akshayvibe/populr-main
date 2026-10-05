@@ -271,10 +271,58 @@ export default function Landing() {
           
           The documents are named as files on purpose. "Populr understands your brand" is a
           claim; product-information.md is a thing you can open and correct. */}
+      {/* The argument, drawn.
+          ref 1 leads with "+247%" because it is a mock and can say anything. We cannot —
+          there is no performance number here that would be true for a reader who has not
+          used it. What IS true is the shape of a week: most of what could be done is not
+          worth doing. So the big number counts decisions, not results, and the matrix is
+          that same count drawn instead of described. Marked as an example, like the plan
+          card above it. */}
+      <section id="decided" className="dec">
+        <div className="wrap">
+          <p className="label">A week, decided</p>
+          <h2 style={{ marginTop: 14 }}>Thirty-one things it could do. <em>Three worth doing.</em></h2>
+          <div className="dec-grid">
+            <div className="dec-panel">
+              <div className="dec-head">
+                <span className="dec-k">Considered this week</span>
+                <span className="dec-tag">example</span>
+              </div>
+              <div className="dec-big">34<i>tasks</i></div>
+              <div className="dec-dots" role="img" aria-label="Thirty-four candidate tasks: thirty-one declined, three done.">
+                {Array.from({ length: 34 }, (_, i) => (
+                  <span key={i} className={i < 3 ? "dec-dot on" : "dec-dot"} />
+                ))}
+              </div>
+              <div className="dec-legend">
+                <span><i className="dec-dot on" /> 3 done</span>
+                <span><i className="dec-dot" /> 31 declined, each with a reason</span>
+              </div>
+            </div>
+            <div className="dec-side">
+              <div className="dec-stat">
+                <span className="dec-k">Channels ranked, every week</span>
+                <b>7</b>
+              </div>
+              <div className="dec-stat">
+                <span className="dec-k">Languages it writes natively</span>
+                <b>31</b>
+                <em>11 of them Indian</em>
+              </div>
+              <div className="dec-stat">
+                <span className="dec-k">Reasons it can give for declining</span>
+                <b>6</b>
+                <em>a closed set, so they can be counted</em>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <section id="how">
         <div className="wrap">
           <p className="label">How it works</p>
-          <h2 style={{ marginTop: 14 }}>Read the business. Decide. Then publish.</h2>
+          <h2 style={{ marginTop: 14 }}>Read the business. <em>Decide. Then publish.</em></h2>
           <p className="start-lede">
             Most tools start at step three and generate. Populr will not write a line until it
             can say who your buyers are and what you sell.
@@ -337,7 +385,7 @@ export default function Landing() {
       <section id="team">
         <div className="wrap">
           <p className="label">The team</p>
-          <h2 style={{ marginTop: 14 }}>Four roles, and one of them is saying no.</h2>
+          <h2 style={{ marginTop: 14 }}>Four roles, <em>and one of them is saying no.</em></h2>
           <p className="start-lede">
             Not a roster to browse. This is who does the work, in the order they do it.
           </p>
@@ -406,7 +454,7 @@ export default function Landing() {
       <section id="pricing">
         <div className="wrap">
           <p className="label">Pricing</p>
-          <h2 style={{ marginTop: 14 }}>One plan. First month free.</h2>
+          <h2 style={{ marginTop: 14 }}>One plan. <em>First month free.</em></h2>
           <div className="price">
             <div>
               <div className="amt"><span className="was">$49</span>$15<small> /mo after your free month</small></div>

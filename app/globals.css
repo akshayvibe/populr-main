@@ -2,12 +2,14 @@
 :root{
   --bg:#000000; --panel:#0c100e; --panel2:#141916;
   --fg:#fbfdf9; --dim:#a2aaa1;
-  /* 4.92:1 on black. The old #667069 measured 4.09:1 — under AA, and it carries the plan
-     card's "Skipped" labels and every reason line under them, which is the one piece of
-     copy on the landing page that has to be read to understand the product. It was failing
-     before the background went true black too; moving the background is what made it mine
-     to fix rather than inherit. */
-  --faint:#737d76;
+  /* Chosen against every dark surface it lands on, not just the darkest.
+     #667069 was 4.09:1 on black — under AA — and it carries the plan card's "Skipped"
+     labels and every reason beneath them, the one piece of landing copy that has to be
+     read for the product to make sense. #737d76 fixed black (4.92) and still failed on
+     the panels (4.49 / 4.17 / 3.75), which is the same trap one step along: a muted
+     colour has to clear the LIGHTEST surface it is used on. This clears all four —
+     black 6.22, panel 5.67, panel2 5.27, raised 4.74. */
+  --faint:#858e87;
   --line:#27302a; --acc:#d5ff72; --amberr:#f2bf70; --redd:#f28d78;
   /* The accent used as TEXT, which is a different decision from the accent used as a
      fill. Identical to --acc here, so every dark surface renders exactly as before; the
@@ -4270,3 +4272,53 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .wel :focus-visible{outline:2px solid var(--wacc);outline-offset:2px}
 @media(prefers-reduced-motion:reduce){.wel-go:hover:not(:disabled){transform:none}}
 @media(max-width:520px){.wel-go{width:100%}}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Landing — the reference language, applied honestly.
+
+   Two-tone headings: the statement carries full weight, the qualifier drops to
+   grey. It is the cheapest way to give a heading a shape, and it costs nothing
+   in meaning because the split follows the sentence's own clause break.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.landing h2 em{font-style:normal;color:var(--faint)}
+
+/* The decided panel — ref 1's hero card, telling the truth instead of a number
+   we would have to invent. One accent surface on the whole page section. */
+.dec-grid{display:grid;grid-template-columns:1.45fr 1fr;gap:14px;margin-top:clamp(26px,3.4vw,40px)}
+.dec-panel{border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:clamp(20px,2.6vw,28px)}
+.dec-head{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dec-k{font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--faint)}
+.dec-tag{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--faint);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+.dec-big{margin-top:14px;font-size:clamp(54px,8vw,92px);font-weight:380;letter-spacing:-.05em;
+  line-height:.92;color:var(--fg)}
+.dec-big i{font-style:normal;font-size:.26em;font-weight:450;letter-spacing:-.01em;
+  color:var(--faint);margin-left:10px;vertical-align:baseline}
+
+/* The matrix. Dim dots are the week's declined work, lit dots the three that
+   survived — the product's whole argument in one shape. */
+.dec-dots{display:flex;flex-wrap:wrap;gap:7px;margin-top:clamp(20px,2.6vw,30px)}
+.dec-dot{width:13px;height:13px;border-radius:50%;background:#1d231f;display:inline-block;flex:none}
+.dec-dot.on{background:var(--acc)}
+.dec-legend{display:flex;flex-wrap:wrap;gap:8px 22px;margin-top:20px;
+  font-size:12.5px;color:var(--faint)}
+.dec-legend span{display:flex;align-items:center;gap:8px}
+.dec-legend i{width:9px;height:9px}
+
+.dec-side{display:flex;flex-direction:column;gap:14px}
+.dec-stat{flex:1;display:flex;flex-direction:column;justify-content:center;
+  border:1px solid var(--line);border-radius:20px;background:var(--panel);padding:clamp(16px,2.2vw,22px)}
+.dec-stat b{display:block;margin-top:8px;font-size:clamp(30px,3.6vw,42px);font-weight:380;
+  letter-spacing:-.04em;line-height:1;color:var(--fg)}
+.dec-stat em{display:block;margin-top:7px;font-style:normal;font-size:12.5px;line-height:1.5;color:var(--faint)}
+
+@media(max-width:900px){
+  .dec-grid{grid-template-columns:1fr}
+  .dec-side{flex-direction:row;flex-wrap:wrap}
+  .dec-stat{flex:1 1 180px}
+}
+@media(max-width:520px){
+  .dec-dot{width:11px;height:11px}
+  .dec-dots{gap:6px}
+}

@@ -54,16 +54,24 @@ describe("the frosted surfaces are actually frosted", () => {
     expect(css).toMatch(/[^-]backdrop-filter:\s*blur\(24px\)/);
   });
 
-  it("keeps --faint readable on a true-black background", () => {
-    // The dark background went to #000. --faint carries the plan card's "Skipped" labels
-    // and every reason under them — the one piece of landing copy that has to be read for
-    // the product to make sense — and the old value measured 4.09:1, under AA.
+  it("keeps --faint readable on every dark surface, not just the darkest", () => {
+    // Twice now a muted colour was chosen against black and then used on a panel, where
+    // the lighter surface pulls it under AA. Black is the easy case; the raised control is
+    // the one that decides the value.
+    const lum = (hex: string) => {
+      const h = hex.replace("#", "");
+      const ch = [0, 2, 4].map((i) => parseInt(h.slice(i, i + 2), 16) / 255)
+        .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
+      return 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
+    };
+    const ratio = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
+
     const m = /--faint:\s*(#[0-9a-f]{6})/i.exec(css);
     expect(m, "--faint not found").toBeTruthy();
-    const hex = m![1].slice(1);
-    const ch = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
-      .map((v) => (v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)));
-    const L = 0.2126 * ch[0] + 0.7152 * ch[1] + 0.0722 * ch[2];
-    expect((L + 0.05) / 0.05, `${m![1]} on black`).toBeGreaterThanOrEqual(4.5);
+    const fg = lum(m![1]);
+    // Every dark surface it is actually set against.
+    for (const surface of ["#000000", "#0c100e", "#141916", "#1d231f"]) {
+      expect(ratio(fg, lum(surface)), `${m![1]} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });
