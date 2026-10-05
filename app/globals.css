@@ -4322,3 +4322,104 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
   .dec-dot{width:11px;height:11px}
   .dec-dots{gap:6px}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   The Meridian treatment.
+
+   An inset dark hero that reads as a panel rather than as the top of a page,
+   then a warm light band under it. The alternation is the whole device: a page
+   that is dark throughout has no rhythm, and the cream section is what makes
+   the dark one feel deliberate instead of default.
+
+   Their accent is amber. Ours is the lime we already have — but only ever as a
+   FILL. Lime measures about 1.1:1 as text on cream, so anything that needs to
+   be read on the light band uses --band-ink, the same hue taken down until it
+   passes. One filled card per row, never two.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* ---- hero, as an inset panel ---- */
+.landing header{
+  padding:clamp(56px,7vw,104px) 0 clamp(52px,6vw,92px);
+  margin:0 clamp(10px,1.6vw,22px);
+  border:1px solid rgba(213,255,114,.10);
+  border-radius:clamp(18px,2vw,28px);
+  border-bottom:1px solid rgba(213,255,114,.10);
+  background:radial-gradient(120% 95% at 72% 18%, #16201a 0%, #0a0f0c 46%, #050706 100%);
+  isolation:isolate;
+}
+/* The bloom. Off-centre on purpose — centred glow reads as a default gradient,
+   a bloom weighted to one side reads as light entering the frame. */
+.landing header::before{
+  width:min(78vw,900px);
+  left:auto;right:-8%;top:-16%;
+  background:conic-gradient(from 210deg,rgba(213,255,114,.20),rgba(213,255,114,.06),rgba(140,200,60,.10),rgba(213,255,114,.20));
+  filter:blur(110px);opacity:.42;
+}
+
+/* ---- the light band ---- */
+.landing section.band{
+  --band-bg:#f2f0ea;        /* warm, not white — white next to black is a flashbulb */
+  --band-fg:#14170f;
+  --band-dim:#5a6052;
+  --band-line:#dedbd2;
+  --band-card:#ffffff;
+  --band-ink:#46610a;       /* lime, taken down until it reads on cream */
+  /* The quieter half of a two-tone heading. 4.70:1 on the band, 5.36 on a white card.
+     The first attempt used the dark theme's grey, which is 2.36:1 here — the greys that
+     read as "muted" on black are invisible on cream, and a two-tone heading whose second
+     clause cannot be read is just a heading with a missing half. */
+  --band-mute:#666d5f;
+  background:var(--band-bg);
+  color:var(--band-fg);
+  margin:clamp(10px,1.6vw,22px);
+  border:0;
+  border-radius:clamp(18px,2vw,28px);
+  padding-block:clamp(56px,7vw,104px);
+}
+.landing section.band .label{color:var(--band-dim)}
+.landing section.band h2{color:var(--band-fg)}
+.landing section.band h2 em{color:var(--band-mute)}
+.landing section.band h3{color:var(--band-fg)}
+.landing section.band p{color:var(--band-dim)}
+.landing section.band .start-lede{color:var(--band-dim)}
+
+/* Numbered cards. Exactly one is filled; the others are white and dark. */
+.landing section.band .act{
+  border:1px solid var(--band-line);
+  border-radius:18px;
+  background:var(--band-card);
+  padding:clamp(20px,2.6vw,30px);
+  margin-top:14px;
+}
+.landing section.band .act-n{color:var(--band-dim);opacity:.75}
+.landing section.band .act-note{color:#6d7366}
+.landing section.band .act:nth-of-type(1){background:var(--acc);border-color:var(--acc)}
+.landing section.band .act:nth-of-type(1) .act-n,
+.landing section.band .act:nth-of-type(1) h3,
+.landing section.band .act:nth-of-type(1) p,
+.landing section.band .act:nth-of-type(1) .act-note{color:#1b2606}
+.landing section.band .act:nth-of-type(1) .act-note{opacity:.72}
+.landing section.band .act:nth-of-type(2){background:#16201a;border-color:#16201a}
+.landing section.band .act:nth-of-type(2) h3{color:#f2f5ef}
+.landing section.band .act:nth-of-type(2) p{color:#aab3a5}
+.landing section.band .act:nth-of-type(2) .act-n{color:#7f8a79}
+.landing section.band .act:nth-of-type(2) .act-note{color:#8d978a}
+
+/* The file chips and the receipt, restated for whichever card they sit on. */
+.landing section.band .docs-strip li{border-color:rgba(27,38,6,.22);background:rgba(27,38,6,.06);color:#24300c}
+.landing section.band .act-receipt{border-color:rgba(255,255,255,.14)}
+.landing section.band .act-receipt > div{color:#aab3a5;border-color:rgba(255,255,255,.1)}
+.landing section.band .act-receipt .mono{color:#7f8a79}
+.landing section.band .act-receipt em{color:#8d978a}
+.landing section.band .act-receipt .do{color:#e8f5d4}
+.landing section.band .act-receipt .do .mono{color:var(--acc-text)}
+
+@media(max-width:760px){
+  .landing header{margin:0 8px}
+  .band{margin:8px}
+}
+/* The band's opening statement. Larger than a lede and two-tone like the headings,
+   because on a light surface this sentence is doing the work the hero does on dark. */
+.landing .band-lede{margin-top:18px;max-width:30ch;font-size:clamp(23px,3.1vw,34px);line-height:1.18;
+  letter-spacing:-.028em;font-weight:420;color:var(--band-fg);text-wrap:balance}
+.landing .band-lede em{font-style:normal;color:var(--band-mute)}

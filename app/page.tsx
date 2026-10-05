@@ -319,13 +319,13 @@ export default function Landing() {
         </div>
       </section>
 
-      <section id="how">
+      <section id="how" className="band">
         <div className="wrap">
           <p className="label">How it works</p>
           <h2 style={{ marginTop: 14 }}>Read the business. <em>Decide. Then publish.</em></h2>
-          <p className="start-lede">
-            Most tools start at step three and generate. Populr will not write a line until it
-            can say who your buyers are and what you sell.
+          <p className="band-lede">
+            Most tools start at step three and generate. <em>Populr will not write a line
+            until it can say who your buyers are and what you sell.</em>
           </p>
 
           <div className="act">
