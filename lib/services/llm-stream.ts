@@ -1,4 +1,4 @@
-import { PROVIDERS, SYSTEM_PROMPT_FOR_STREAM, streamConfig } from "./llm";
+import { PROVIDERS, SYSTEM_PROMPT_FOR_STREAM, streamConfig, rememberDeadModel } from "./llm";
 
 // Streaming generation.
 //
@@ -112,7 +112,20 @@ async function openStream(
       signal,
     });
     if (!res.ok || !res.body) {
-      console.info(JSON.stringify({ event: "llm_stream_open_failed", provider: provider.name, model, status: res.status }));
+      // Read the body before discarding the response. A retired model and a bad endpoint
+      // both answer 404, and only what the provider actually said separates them — so the
+      // status alone could never decide whether to stop asking for this model.
+      const body = await res.text().catch(() => "");
+      const retired = rememberDeadModel(provider.name, model, res.status, body);
+      console.info(JSON.stringify({
+        event: "llm_stream_open_failed",
+        provider: provider.name,
+        model,
+        status: res.status,
+        // Logged so the first stream that retires a model is findable, rather than the
+        // retirement being an invisible side effect of a failed open.
+        ...(retired ? { modelRetired: true } : {}),
+      }));
       return null;
     }
     return res;

@@ -162,6 +162,29 @@ function dedupe(list: string[]) {
 const deadModels = new Set<string>();
 const deadKey = (provider: string, model: string) => `${provider}:${model}`;
 
+/**
+ * Remember that a model is permanently gone for this key.
+ *
+ * Exported because the memo was one-way. streamConfig() already filters by it, so the
+ * streaming path benefited from what the non-streaming path learned and never contributed
+ * anything back — a model that 404s during streaming was retried on every subsequent
+ * stream, forever, because only generateText ever wrote here.
+ *
+ * Takes the response body as well as the status: a 404 from a retired model and a 404 from
+ * a typo'd endpoint look identical until you read what the provider said.
+ */
+export function rememberDeadModel(provider: string, model: string, status: number, body: string): boolean {
+  const kind = classifyUpstream(status, body);
+  if (!isUnsupportedModelAttempt(kind, body)) return false;
+  deadModels.add(deadKey(provider, model));
+  return true;
+}
+
+/** Tests need to start from a clean memo; nothing in the product calls this. */
+export function resetDeadModelsForTests(): void {
+  deadModels.clear();
+}
+
 // Rough token estimate (~4 chars/token) — good enough for logging/quota accounting.
 function estTokens(chars: number) {
   return Math.ceil(chars / 4);
