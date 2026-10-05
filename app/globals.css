@@ -4154,49 +4154,119 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
 .prefs-status{margin:18px 0 0;font-size:12.5px;color:var(--faint);min-height:1.4em}
 @media(max-width:640px){.prefs-grid{grid-template-columns:1fr}}
 
-/* Welcome — the first screen.
-   Its own light surface rather than the studio shell: there is no nav to sit against yet,
-   and a rail of eight destinations is the wrong thing to show someone who has not started.
-   Tokens are declared locally so this page does not depend on which theme class wraps it. */
-.wel{--wbg:#ffffff;--wfg:#15171a;--wdim:#5c6165;--wfaint:#6a7075;--wline:#e7e8ea;
-  --wpanel:#fafafa;--wink:#4a6b00;--wacc:#d5ff72;
-  min-height:100vh;background:var(--wbg);color:var(--wfg);
-  padding:clamp(28px,5vw,64px) 16px clamp(40px,6vw,72px)}
-.wel-inner{max-width:760px;margin:0 auto;display:flex;flex-direction:column;gap:clamp(22px,3vw,32px)}
-.wel-brand{display:flex;align-items:center;gap:9px;color:var(--wfg);margin-bottom:22px}
-.wel-brand span{font-size:16px;font-weight:600;letter-spacing:-.02em}
-.wel-h1{margin:0;font-size:clamp(26px,4.4vw,38px);font-weight:600;letter-spacing:-.032em;line-height:1.1;text-wrap:balance}
-.wel-sub{margin:11px 0 0;max-width:56ch;font-size:15px;line-height:1.6;color:var(--wdim)}
-.wel-card{display:flex;flex-direction:column;gap:clamp(22px,3vw,30px);
-  border:1px solid var(--wline);border-radius:14px;background:var(--wpanel);padding:clamp(18px,3vw,26px)}
-.wel-q-head h2{margin:0;font-size:16px;font-weight:600;letter-spacing:-.012em}
-.wel-q-head p{margin:5px 0 0;font-size:13px;line-height:1.55;color:var(--wfaint);max-width:58ch}
-.wel-opts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
-.wel-opt{display:flex;flex-direction:column;align-items:flex-start;gap:2px;
-  padding:9px 13px;border:1px solid var(--wline);border-radius:9px;background:#fff;
-  font:inherit;color:var(--wfg);cursor:pointer;text-align:left;min-height:44px;
-  transition:border-color .15s ease,background .15s ease}
-.wel-opt b{font-size:14px;font-weight:500;line-height:1.25}
-.wel-opt span{font-size:11px;color:var(--wfaint)}
-.wel-opt:hover{border-color:#c9ccd1;background:#fcfcfc}
-.wel-opt.on{border-color:var(--wink);background:#f4fbe4}
-.wel-opt.on b{font-weight:600}
+/* ═══════════════════════════════════════════════════════════════════════════
+   Welcome — the first screen, in the product's visual language.
+
+   One system, taken from the references and applied with our own accent:
+
+     - near-black canvas, generous radius, hairline borders
+     - ONE saturated panel per view. The accent is a place the eye lands once,
+       not a colour sprinkled through the page. Here it is the Continue button
+       and nothing else.
+     - selected state is a LIGHT fill with dark text, unselected is a dark panel.
+       Inverting the fill reads as "chosen" far faster than a border change, and
+       it is what makes a grid of thirty options scannable.
+     - ambient outlined rectangles behind the content. Decoration, but structural
+       decoration — it reads as a workspace being assembled rather than as a
+       gradient, which is the difference between this and every AI landing page.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.wel{
+  --wbg:#000000;      /* the canvas */
+  --wpanel:#0d0f0e;   /* cards sitting on it */
+  --wraise:#151816;   /* an unselected control */
+  --wline:#1f2422;    /* hairline */
+  --wline-2:#2d3431;  /* hairline, one step up — hover and ambient */
+  --wfg:#f4f7f2;
+  --wdim:#9aa39c;
+  /* 4.62:1 on the raised control, 4.97 on the panel, 5.42 on black. The previous value was
+     computed against black alone and then used inside a pill, where the lighter surface
+     pulls it under AA — a muted colour has to clear every surface it is actually used on,
+     not the darkest one. */
+  --wfaint:#7a847d;
+  --wacc:#d5ff72;
+  --wink:#1c2606;     /* text ON the accent */
+  position:relative;
+  min-height:100vh;
+  background:var(--wbg);
+  color:var(--wfg);
+  padding:clamp(30px,5vw,70px) 16px clamp(44px,6vw,80px);
+  overflow:hidden;
+}
+
+/* Ambient structure. Pure decoration, hidden from assistive tech. */
+.wel-amb{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.wel-amb i{position:absolute;display:block;border:1px solid var(--wline);border-radius:16px}
+.wel-amb i:nth-child(1){top:12%;left:-4%;width:16%;height:34%}
+.wel-amb i:nth-child(2){top:8%;right:14%;width:12%;height:14%}
+.wel-amb i:nth-child(3){top:7%;right:-3%;width:18%;height:17%;border-color:var(--wline-2)}
+.wel-amb i:nth-child(4){top:30%;right:-6%;width:14%;height:30%}
+.wel-amb i:nth-child(5){bottom:6%;left:2%;width:17%;height:22%;border-color:var(--wline-2)}
+.wel-amb i:nth-child(6){bottom:-4%;left:26%;width:46%;height:16%}
+@media(max-width:760px){.wel-amb{display:none}}
+
+.wel-inner{position:relative;z-index:1;max-width:780px;margin:0 auto;
+  display:flex;flex-direction:column;gap:clamp(24px,3vw,34px)}
+
+.wel-brand{display:flex;align-items:center;gap:9px;color:var(--wfg);margin-bottom:clamp(26px,4vw,44px)}
+.wel-brand span{font-size:15px;font-weight:500;letter-spacing:-.02em}
+
+/* Two-tone headline: the statement in white, the qualifier in grey. */
+.wel-h1{margin:0;font-size:clamp(30px,5vw,46px);font-weight:420;letter-spacing:-.038em;
+  line-height:1.04;text-wrap:balance}
+.wel-h1 em{font-style:normal;color:var(--wdim)}
+.wel-sub{margin:14px 0 0;max-width:52ch;font-size:15px;line-height:1.6;color:var(--wdim)}
+
+.wel-card{display:flex;flex-direction:column;gap:clamp(24px,3vw,32px);
+  border:1px solid var(--wline);border-radius:20px;background:var(--wpanel);
+  padding:clamp(20px,3vw,30px)}
+
+.wel-q-head h2{margin:0;font-size:16px;font-weight:500;letter-spacing:-.015em}
+.wel-q-head p{margin:6px 0 0;font-size:13px;line-height:1.55;color:var(--wfaint);max-width:58ch}
+
+.wel-opts{display:flex;flex-wrap:wrap;gap:7px;margin-top:16px}
+/* Unselected: a dark control. Selected: inverted to a light fill. */
+.wel-opt{display:flex;flex-direction:column;align-items:flex-start;gap:1px;
+  padding:10px 15px;border:1px solid var(--wline);border-radius:11px;
+  background:var(--wraise);font:inherit;color:var(--wdim);cursor:pointer;
+  text-align:left;min-height:46px;justify-content:center;
+  transition:background .14s ease,border-color .14s ease,color .14s ease}
+.wel-opt b{font-size:14px;font-weight:450;line-height:1.25}
+.wel-opt span{font-size:10.5px;color:var(--wfaint);letter-spacing:.01em}
+.wel-opt:hover{border-color:var(--wline-2);color:var(--wfg)}
+.wel-opt.on{background:#eef1ec;border-color:#eef1ec;color:#11140f}
+.wel-opt.on b{font-weight:550}
+.wel-opt.on span{color:#5b625a}
 .wel-opt-wide b{font-size:13.5px}
-.wel-tz{margin:13px 0 0;font-size:12.5px;line-height:1.6;color:var(--wfaint)}
-.wel-tz b{color:var(--wfg);font-weight:500;font-family:'Geist Mono',ui-monospace,monospace;font-size:12px}
-.wel-swap{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--wink);
-  text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+
+.wel-tz{margin:16px 0 0;font-size:12.5px;line-height:1.65;color:var(--wfaint)}
+.wel-tz b{color:var(--wfg);font-weight:400;font-family:'Geist Mono',ui-monospace,monospace;font-size:11.5px;
+  padding:2px 7px;border:1px solid var(--wline);border-radius:6px;background:var(--wraise)}
+.wel-swap{background:none;border:0;padding:0;font:inherit;font-size:12.5px;color:var(--wacc);
+  text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.wel-swap:hover{opacity:.8}
+
 .wel-next .label{color:var(--wfaint)}
-.wel-steps{margin:13px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:12px}
-.wel-steps li{display:grid;grid-template-columns:26px 1fr;gap:12px;align-items:baseline}
-.wel-n{font-family:'Geist Mono',ui-monospace,monospace;font-size:11px;color:var(--wfaint)}
-.wel-st b{display:block;font-size:14px;font-weight:600;letter-spacing:-.01em}
-.wel-st em{display:block;margin-top:2px;font-style:normal;font-size:13px;line-height:1.55;color:var(--wfaint)}
-.wel-go-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 18px}
-.wel-go{padding:12px 26px;border:0;border-radius:10px;background:var(--wacc);color:#1c2606;
-  font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;min-height:46px}
-.wel-go:hover:not(:disabled){background:#c9f95f}
-.wel-go:disabled{opacity:.5;cursor:not-allowed}
-.wel-note{margin:0;flex:1 1 260px;font-size:12.5px;line-height:1.55;color:var(--wfaint)}
-.wel :focus-visible{outline:2px solid var(--wink);outline-offset:2px}
+.wel-steps{margin:16px 0 0;padding:0;list-style:none;display:flex;flex-direction:column;gap:0}
+.wel-steps li{display:grid;grid-template-columns:30px 1fr;gap:14px;align-items:baseline;
+  padding:14px 0;border-top:1px solid var(--wline)}
+.wel-steps li:last-child{border-bottom:1px solid var(--wline)}
+.wel-n{font-family:'Geist Mono',ui-monospace,monospace;font-size:10.5px;color:var(--wfaint);letter-spacing:.06em}
+.wel-st b{display:block;font-size:14.5px;font-weight:500;letter-spacing:-.012em}
+.wel-st em{display:block;margin-top:3px;font-style:normal;font-size:13px;line-height:1.55;color:var(--wfaint)}
+
+.wel-go-row{display:flex;flex-wrap:wrap;align-items:center;gap:14px 20px}
+/* The one saturated thing on the page. */
+.wel-go{padding:13px 30px;border:0;border-radius:11px;background:var(--wacc);color:var(--wink);
+  font:inherit;font-size:14.5px;font-weight:550;letter-spacing:-.01em;cursor:pointer;min-height:48px;
+  transition:background .14s ease,transform .14s ease}
+.wel-go:hover:not(:disabled){background:#c7fa58;transform:translateY(-1px)}
+.wel-go:disabled{opacity:.45;cursor:not-allowed}
+.wel-note{margin:0;flex:1 1 240px;font-size:12.5px;line-height:1.55;color:var(--wfaint)}
+.wel-empty{margin:0;padding:14px 17px;border:1px solid var(--wline);border-radius:12px;
+  background:var(--wpanel);font-size:13px;line-height:1.55;color:var(--wdim)}
+.wel-empty a{color:var(--wacc)}
+
+.wel :focus-visible{outline:2px solid var(--wacc);outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.wel-go:hover:not(:disabled){transform:none}}
 @media(max-width:520px){.wel-go{width:100%}}

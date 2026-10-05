@@ -71,6 +71,10 @@ export default function WelcomePage() {
 
   return (
     <main className="wel">
+      {/* Structural decoration: outlined panels, as if the workspace is being assembled
+          behind the question. Hidden from assistive tech — it says nothing. */}
+      <div className="wel-amb" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div>
+
       <div className="wel-inner">
         <header className="wel-head">
           <div className="wel-brand">
@@ -79,7 +83,7 @@ export default function WelcomePage() {
             </svg>
             <span>Populr</span>
           </div>
-          <h1 className="wel-h1">Welcome. Two questions first.</h1>
+          <h1 className="wel-h1">Welcome. <em>Two questions first.</em></h1>
           <p className="wel-sub">
             Populr works out the rest from your website. These two it cannot guess, and both
             change what it does from the first day.
