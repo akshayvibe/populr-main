@@ -32,6 +32,17 @@ type ProviderConfig = {
   models: string[];
   authHeader: "Authorization" | "x-goog-api-key";
   kind: "openai_compatible" | "gemini";
+  /**
+   * Completion budget, when the shared one is wrong for this provider.
+   *
+   * This is not a knob for "give it more room and hope". A reasoning model spends the
+   * completion allowance thinking before it writes, so for those the budget is a floor to
+   * clear rather than a ceiling to stay under — below it they return no content at all,
+   * which is a worse failure than a short answer because the retry logic cannot see it.
+   */
+  maxOutputTokens?: number;
+  /** Request timeout, when a provider is legitimately slower than the shared one allows. */
+  timeoutMs?: number;
 };
 
 // Cap on generated tokens. 1024 gives full deliverables (articles, docs, multi-part
@@ -258,6 +269,18 @@ export const PROVIDERS: ProviderConfig[] = [
     ]),
     authHeader: "Authorization",
     kind: "openai_compatible",
+    // Measured, not guessed. sarvam-105b is a reasoning model and spends the completion
+    // budget deliberating before it writes: on the compact compose brief it used 6,358
+    // completion tokens to return valid Marathi JSON. At the shared 4,096 it consumed the
+    // whole allowance thinking and returned content: null with finish_reason "length" —
+    // every single time, in 22 seconds, for nothing.
+    //
+    // 12,288 clears that with headroom. It is a floor for this model rather than a licence
+    // to ramble: the model stops when it is done, and a shorter answer costs nothing.
+    maxOutputTokens: 12_288,
+    // And it is slow when it does answer — 39 seconds for the call above. The shared 45s
+    // timeout would turn a working request into a flake.
+    timeoutMs: 120_000,
   },
 ];
 
@@ -332,20 +355,21 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
     keyPrefixMatch: provider.prefix ? key.startsWith(provider.prefix) : true,
     promptChars,
     estPromptTokens: estTokens(promptChars),
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
+    maxOutputTokens: provider.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
     retried,
     appUrlConfigured: Boolean(process.env.APP_URL || process.env.NEXT_PUBLIC_APP_URL),
   });
 
+  const maxOutput = provider.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 45_000);
+  const timeout = setTimeout(() => controller.abort(), provider.timeoutMs ?? 45_000);
   try {
     const requestBody =
       provider.kind === "gemini"
         ? JSON.stringify({
             contents: [{ role: "user", parts: [{ text: prompt }] }],
             systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-            generationConfig: { temperature, maxOutputTokens: MAX_OUTPUT_TOKENS },
+            generationConfig: { temperature, maxOutputTokens: maxOutput },
           })
         : JSON.stringify({
             model,
@@ -353,7 +377,7 @@ async function callProvider(provider: ProviderConfig, model: string, key: string
               { role: "system", content: SYSTEM_PROMPT },
               { role: "user", content: prompt },
             ],
-            max_tokens: MAX_OUTPUT_TOKENS,
+            max_tokens: maxOutput,
             temperature,
           });
     // Gemini puts the model + method in the URL path; OpenAI-compatible providers put the
@@ -737,6 +761,19 @@ export async function generateText(opts: {
    * Sarvam — rather than a global switch. Ignored when the named provider has no key.
    */
   preferProvider?: ProviderName;
+  /**
+   * A per-provider prompt, for when one provider cannot use the prompt the others want.
+   *
+   * Sarvam's model is a reasoning model: it thinks in the completion budget before it
+   * writes, so the full compose brief — twenty-odd numbered constraints — consumed the
+   * whole 4096-token allowance and returned no content at all. Raising the budget only
+   * bought longer thinking. The fix is a shorter brief for that provider, not a different
+   * limit and not a different chain.
+   *
+   * Returning undefined (or omitting this entirely) means every provider gets `prompt`,
+   * which is what every existing caller does and what every existing caller keeps doing.
+   */
+  promptFor?: (provider: ProviderName) => string | undefined;
 }): Promise<GenerateResult> {
   const requestId = opts.requestId || randomUUID();
   const started = Date.now();
@@ -776,17 +813,22 @@ export async function generateText(opts: {
   }
 
   const runGeneration = async (): Promise<GenResult> => {
-    let prompt = rawPrompt;
+    // The site summary is fetched once and prefixed to whichever brief a provider gets, so
+    // a provider-specific prompt still sees the page details the others see.
+    let sitePrefix = "";
     if (opts.url) {
       const site = await siteSummary(sql, opts.url, requestId);
-      prompt = site
-        ? `Key page details for ${opts.url} (fetched just now):\n---\n${site}\n---\n\n${prompt}`
-        : `(Note: ${opts.url} could not be fetched — infer what you can from the domain name.)\n\n${prompt}`;
+      sitePrefix = site
+        ? `Key page details for ${opts.url} (fetched just now):\n---\n${site}\n---\n\n`
+        : `(Note: ${opts.url} could not be fetched — infer what you can from the domain name.)\n\n`;
     }
+    const promptFor = (name: ProviderName): string =>
+      sitePrefix + (opts.promptFor?.(name) ?? rawPrompt);
     let lastAttempt: LLMAttempt | null = null;
     provider: for (const { provider, key } of configuredProviders) {
       model: for (const model of provider.models) {
         if (deadModels.has(deadKey(provider.name, model))) continue model;
+        const prompt = promptFor(provider.name);
         let attempt = await callProvider(provider, model, key, prompt, requestId, false, temperature);
         if (attempt.ok) {
           if (sql) await putCachedAnalysis(sql, cacheKey, opts.url || null, attempt.text, provider.name, model);

@@ -144,6 +144,76 @@ function buildPrompt(input: ComposeInput, ctx: GenerationContext): string {
   ].join("\n");
 }
 
+/**
+ * The same brief, for a model that thinks in its output budget.
+ *
+ * sarvam-105b is a reasoning model: it reasons into the completion allowance before it
+ * writes a character. Handed the full brief — CRAFT_RULES, POST_SHAPES, INTERACTION,
+ * DISCOVERY, the platform form guide, CRAFT_BANS and twenty-odd numbered rules, about
+ * 5,500 characters of craft instruction alone — it spent the whole 4,096-token budget
+ * deliberating and returned content: null with finish_reason "length". Raising the budget
+ * to 16,384 only bought longer deliberation and no answer.
+ *
+ * So this is not a truncation of buildPrompt. It is the same job stated once: what to
+ * write, who for, in what language, inside what limits, and in what shape. Everything
+ * removed was guidance on HOW to write well rather than WHAT to produce —
+ *
+ *   - CRAFT_RULES / POST_SHAPES / INTERACTION / DISCOVERY / formFor: style and structure
+ *     coaching. Valuable, and the first thing a reasoning model argues with itself about.
+ *   - CRAFT_BANS: the long list of forbidden phrasings, reduced to the two that actually
+ *     change the output's truthfulness rather than its taste.
+ *   - market trends, competitors, opportunities, keywords, memory, references: enrichment
+ *     that widens the search space without changing what was asked for.
+ *
+ * What is kept is what the request is not valid without: the language instruction, which
+ * is the entire reason this provider is preferred; the ask; the audience; the brand voice;
+ * the hard platform limits; the no-invention rule; and the JSON shape the parser needs.
+ */
+function buildCompactPrompt(input: ComposeInput, ctx: GenerationContext): string {
+  const meta = FORMAT_META[input.format];
+  const platformList = ctx.platforms.length
+    ? ctx.platforms.map((p) => `"${p.platform}" (max ${p.maxText} chars)`).join(", ")
+    : "none";
+  const english = isEnglish(languageCode(input.language));
+
+  return [
+    `You are Populr, an AI CMO. Write marketing content for this business.`,
+    ``,
+    ...(english ? [] : [
+      `WRITE IN: ${language(input.language).native} (${language(input.language).name}).`,
+      // Same canonical wording as the full brief. The phrase is the contract — tests pin
+      // it, and a provider that got a differently-worded instruction would be a second
+      // definition of what "native" means.
+      `Write it natively, not translated. Keep the product name, URLs and English technical terms your reader would say in English.`,
+    ]),
+    `THE ASK: ${input.prompt}`,
+    `FORMAT: ${meta.label} — ${meta.blurb}`,
+    `AUDIENCE: ${ctx.audience}`,
+    ...(ctx.brand.voice.length ? [`BRAND VOICE: ${ctx.brand.voice.join("; ")}`] : []),
+    ...(ctx.platforms.length
+      ? [`PLATFORM LIMITS: ${ctx.platforms.map((p) => `${p.platform} max ${p.maxText} chars`).join(", ")}`]
+      : []),
+    ...(ctx.previousCampaigns.length
+      ? [`DO NOT REPEAT these angles already used: ${ctx.previousCampaigns.join("; ")}`]
+      : []),
+    ``,
+    `Do not invent statistics, customers, competitors or quotes.`,
+    `Each platform variant is rewritten for that platform and fits its limit.`,
+    ``,
+    `Return ONLY valid JSON, no markdown fences:`,
+    `{`,
+    `  "title": string,`,
+    `  "body": string,`,
+    `  "variants": [{ "platform": one of [${platformList}], "text": string, "note": string }],`,
+    `  "hashtags": [string],`,
+    `  "ctas": [string, string, string],`,
+    `  "campaign": { "title": string, "goal": string, "rationale": string },`,
+    `  "reasoning": string,`,
+    `  "confidence": number`,
+    `}`,
+  ].join("\n");
+}
+
 const clamp01 = (n: unknown, fallback: number): number => {
   const v = typeof n === "number" && Number.isFinite(n) ? n : fallback;
   return Math.max(0, Math.min(1, Number(v.toFixed(3))));
@@ -239,7 +309,13 @@ export async function composeWithAi(
     ? ("sarvam" as const)
     : undefined;
   const result = await generateText({
-    prompt: buildPrompt(input, ctx), cacheSalt, temperature: COMPOSE_TEMPERATURE, preferProvider: prefer,
+    prompt: buildPrompt(input, ctx),
+    cacheSalt,
+    temperature: COMPOSE_TEMPERATURE,
+    preferProvider: prefer,
+    // Only Sarvam. Returning undefined for everything else means Groq, Gemini and OpenAI
+    // receive exactly the prompt they received before this existed.
+    promptFor: (name) => (name === "sarvam" ? buildCompactPrompt(input, ctx) : undefined),
   });
   if (!result.ok) {
     return deterministicResult(input, `Every AI provider failed (${result.error}). This draft is from the built-in composer.`);
