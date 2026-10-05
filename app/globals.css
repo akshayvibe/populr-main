@@ -4551,3 +4551,53 @@ body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
   .settings .conn-btn,
   .settings .acct-btn{min-height:44px}
 }
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Dashboard stats, in the reference's language.
+
+   Three figures in one bordered box, divided by hairlines, is a table. The
+   reference makes each figure its own card and lets the number carry the panel,
+   which is the difference between reading a dashboard and glancing at one.
+
+   The first card is filled. One saturated surface per view — the same rule the
+   landing and onboarding follow — and it goes to the headline figure because
+   that is where the eye should land first.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.appui .statgrid{
+  border:0;background:none;padding:0;border-radius:0;
+  display:flex;flex-direction:column;gap:10px;margin-top:16px;
+}
+.appui .statrow{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;
+}
+.appui .stat{
+  flex:none;text-align:left;padding:clamp(16px,1.9vw,22px);
+  border:1px solid var(--line);border-radius:18px;background:var(--panel);
+  display:flex;flex-direction:column;gap:0;
+}
+.appui .stat .sl{
+  font-family:'Geist Mono',monospace;font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--faint);
+}
+/* The number is the panel. */
+.appui .stat .sv{
+  font-size:clamp(34px,4.4vw,52px);font-weight:380;letter-spacing:-.045em;
+  line-height:1.02;margin-top:12px;color:var(--fg);
+}
+.appui .stat .sd{margin-top:10px;font-size:12px}
+
+/* The one filled card. */
+.appui .statrow .stat:first-child{background:var(--acc);border-color:var(--acc)}
+.appui .statrow .stat:first-child .sl{color:rgba(27,38,6,.66)}
+.appui .statrow .stat:first-child .sv{color:#1b2606}
+.appui .statrow .stat:first-child .sd{color:rgba(27,38,6,.72)}
+.appui .statrow .stat:first-child .sd-sample{color:rgba(27,38,6,.66);border-color:rgba(27,38,6,.28)}
+
+.appui .statfoot{
+  display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;
+  border:1px solid var(--line);border-radius:14px;background:var(--panel);
+  padding:12px 16px;font-size:12px;color:var(--faint);border-top-color:var(--line)
+}
+/* The disclaimer pill sizes to its text. In a flex column it was stretching the full
+   card width, which made a three-character caveat look like a progress bar. */
+.appui .stat .sd-sample{align-self:flex-start}
