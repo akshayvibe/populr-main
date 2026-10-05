@@ -66,12 +66,21 @@ async function openStream(
   signal: AbortSignal,
 ): Promise<Response | null> {
   const cfg = streamConfig();
+  // The provider's own budget, exactly as the non-streaming path uses it.
+  //
+  // This read the shared 4,096 for every provider, which is the number that makes a
+  // reasoning model return content: null — it spends the whole allowance thinking and
+  // never writes. The non-streaming path was fixed for that and this one was not, so
+  // streaming through Sarvam would have failed in a way the non-streaming path no longer
+  // does, which is the worst kind of inconsistency: the same provider behaving differently
+  // depending on which code path reached it.
+  const maxOutput = provider.capabilities.maxOutputTokens ?? cfg.maxOutputTokens;
   const body =
     provider.kind === "gemini"
       ? JSON.stringify({
           contents: [{ role: "user", parts: [{ text: prompt }] }],
           systemInstruction: { parts: [{ text: SYSTEM_PROMPT_FOR_STREAM }] },
-          generationConfig: { temperature: cfg.temperature, maxOutputTokens: cfg.maxOutputTokens },
+          generationConfig: { temperature: cfg.temperature, maxOutputTokens: maxOutput },
         })
       : JSON.stringify({
           model,
@@ -79,7 +88,7 @@ async function openStream(
             { role: "system", content: SYSTEM_PROMPT_FOR_STREAM },
             { role: "user", content: prompt },
           ],
-          max_tokens: cfg.maxOutputTokens,
+          max_tokens: maxOutput,
           temperature: cfg.temperature,
           stream: true,
         });
@@ -133,7 +142,10 @@ export async function* streamText(prompt: string): AsyncGenerator<StreamEvent> {
       clearTimeout(openTimer);
       if (!res?.body) continue;   // still before the first byte — the next model is fair game
 
-      const streamTimer = setTimeout(() => controller.abort(), STREAM_TIMEOUT_MS);
+      // Whole-stream budget, from the provider where it declares one. Sarvam is measured
+      // at roughly 55 seconds end to end with its first content chunk at 14, so a provider
+      // that declares it is slow must be allowed to be slow here too.
+      const streamTimer = setTimeout(() => controller.abort(), provider.capabilities.timeoutMs ?? STREAM_TIMEOUT_MS);
       const reader = res.body.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
