@@ -53,9 +53,28 @@ export default function ResizableDash({ children }: { children: React.ReactNode 
   const [w, setW] = useState<Widths>(DEFAULTS);
   const [ready, setReady] = useState(false);
   const [offsets, setOffsets] = useState<number[]>([]);
+  /**
+   * Whether the viewport is wide enough for four resizable columns.
+   *
+   * This gates the inline grid, not just the handles. An inline style beats every media
+   * query, so writing desktop track sizes unconditionally meant the stylesheet could not
+   * lay the columns out any other way — the two-column tablet grid was being overridden
+   * from the component and had to be beaten back with `!important`, which then also
+   * clobbered the tablet grid it was not meant to touch. Below the threshold this renders
+   * no inline grid at all and CSS owns the layout, which is what it should have done.
+   */
+  const [wide, setWide] = useState(false);
   const drag = useRef<{ edge: Edge; startX: number; startW: number } | null>(null);
 
   useEffect(() => { setW(load()); setReady(true); }, []);
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(min-width: ${MIN_VIEWPORT}px)`);
+    const sync = () => setWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     if (!ready) return;
@@ -134,13 +153,13 @@ export default function ResizableDash({ children }: { children: React.ReactNode 
     <div
       ref={ref}
       className="dash"
-      style={{
+      style={wide ? {
         gridTemplateColumns:
           `${w.left}px minmax(340px,1fr) ${w.agents}px ${w.chat}px`,
-      }}
+      } : undefined}
     >
       {children}
-      {ready && offsets.length === 3 && EDGES.map(({ edge, label }, i) => (
+      {wide && ready && offsets.length === 3 && EDGES.map(({ edge, label }, i) => (
         <div
           key={edge}
           className="colgrip"
