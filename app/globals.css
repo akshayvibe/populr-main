@@ -4604,3 +4604,39 @@ body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
 /* The disclaimer pill sizes to its text. In a flex column it was stretching the full
    card width, which made a three-character caveat look like a progress bar. */
 .appui .stat .sd-sample{align-self:flex-start}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Tomorrow, on the light side.
+
+   The last dark surface inside the product. Same override, same values as the
+   studio and the dashboard — a fourth almost-identical light palette is how a
+   product ends up with four greys that are nearly the same and never quite.
+   ═══════════════════════════════════════════════════════════════════════════ */
+.tm{
+  --bg:#ffffff;
+  --panel:#fafafa;
+  --panel2:#f3f3f3;
+  --fg:#15171a;
+  --dim:#5c6165;
+  --faint:#6a7075;
+  --line:#e7e8ea;
+  --edge:#e7e8ea;
+  --acc:#d5ff72;          /* fill only */
+  --acc-ink:#4a6b00;
+  --acc-text:var(--acc-ink);
+  --amberr:#8a5a00;
+  --redd:#a8341f;
+  background:#ffffff;
+  color:var(--fg);
+  min-height:100vh;
+}
+body:has(.tm){background:#ffffff}
+body:has(.tm) ::-webkit-scrollbar-thumb{background:#d3d5d9;border-color:#ffffff}
+body:has(.tm) ::selection{background:#e8ffb0;color:#15171a}
+
+/* The three that named a colour instead of a token. Amber and red were picked to
+   glow on black and are muddy on white, so both come down to the values that
+   already pass AA on a light surface elsewhere in the product. */
+.tm-warn{color:var(--amberr)}
+.tm-b-note::before{background:var(--amberr)}
+.tm-b-stop::before{background:var(--redd)}
