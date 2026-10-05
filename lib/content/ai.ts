@@ -266,6 +266,90 @@ function deterministicResult(input: ComposeInput, reason: string): ComposeResult
   };
 }
 
+/**
+ * The rewrite brief.
+ *
+ * Extracted so the compact variant is a deliberate second version rather than a copy that
+ * drifts. `compact: false` produces exactly the string that was inline here before, so the
+ * providers that were working keep receiving byte-identical prompts.
+ *
+ * The compact one exists for the same reason as the compose one: this prompt carries
+ * CRAFT_RULES, POST_SHAPES, DISCOVERY and the platform form guide — about 4,200 characters
+ * of craft instruction — and a reasoning model spends its completion budget deliberating
+ * over that instead of writing. The rewrite is the step whose output actually ships, so
+ * losing it to a starved model is worse than losing the draft.
+ *
+ * One thing the compact version keeps, against the instinct to cut it: when the fault IS
+ * the shape, naming the fault without offering an alternative asks the model to invent a
+ * structure from a complaint, and it answers by rewording the same paragraph. So a
+ * one-line shape menu survives where the full POST_SHAPES block does not.
+ */
+function buildRewritePrompt(
+  body: string,
+  craft: ReturnType<typeof scoreDraft>,
+  ctx: GenerationContext,
+  { compact }: { compact: boolean },
+): string {
+  const shapeFault = craft.issues.some((i) => i.code === "monotone_shape");
+  const instruction = shapeFault
+    ? `Rewrite this so it reads like a person wrote it. Keep the argument and the facts; change the SHAPE. Break it onto separate lines, or turn the middle into three dashed items, or end on a line of four words. Returning another single paragraph is a failed rewrite.`
+    : `Rewrite this so it reads like a person wrote it. Keep the argument, the facts and the format identical — change only the writing.`;
+
+  if (compact) {
+    return [
+      instruction,
+      ``,
+      rewriteNote(craft),
+      ...(shapeFault
+        ? [``, `Shapes to choose from: short lines; a one-line hook then three dashed items; a question then an answer; two short paragraphs.`]
+        : []),
+      ``,
+      `Return ONLY the rewritten text. No preamble, no explanation, no quotes around it.`,
+      ``,
+      `---`,
+      body,
+    ].join("\n");
+  }
+
+  return [
+        // The instruction has to match the fault. "Keep the format identical — change only the
+        // writing" is right for a stock phrase or a flat rhythm, and is a flat contradiction
+        // when the fault IS the format: it asks the model to fix the shape while forbidding it
+        // from changing the shape. A real generation went round this loop and came back as the
+        // same wall, scored identically, and was discarded — the rewrite ran and could not
+        // possibly have helped.
+        craft.issues.some((i) => i.code === "monotone_shape")
+          ? `Rewrite this so it reads like a person wrote it. Keep the argument and the facts; change the SHAPE. Break it onto separate lines, or turn the middle into three dashed items, or end on a line of four words. Returning another single paragraph is a failed rewrite.`
+          : `Rewrite this so it reads like a person wrote it. Keep the argument, the facts and the format identical — change only the writing.`,
+        ``,
+        rewriteNote(craft),
+        ``,
+        CRAFT_RULES,
+        ``,
+        // The shapes have to travel with the rewrite. Telling a model its draft is a wall of
+        // prose without also showing it the alternatives asks it to invent a structure from a
+        // complaint — and it answers by rewording the same paragraph.
+        POST_SHAPES,
+        ``,
+        // The rewrite is what ships. Almost every draft trips a shape check, so this second
+        // prompt — not the first — decides what a customer reads, and any guidance missing
+        // here is guidance that never reaches the post. DISCOVERY was absent, so hashtags and
+        // buyer keywords were added by the draft and then quietly removed by the rewrite.
+        //
+        // The platform rules go with it for the same reason: LinkedIn wants two or three tags
+        // on their own line and X wants none, and a rewrite that does not know where the post
+        // is going cannot honour either.
+        DISCOVERY,
+        ``,
+        formFor(ctx.platforms.map((p) => p.platform)),
+        ``,
+        `Return ONLY the rewritten text. No preamble, no explanation, no quotes around it.`,
+        ``,
+        `---`,
+        body,
+  ].join("\n");
+}
+
 export async function composeWithAi(
   input: ComposeInput,
   opts: {
@@ -388,46 +472,11 @@ export async function composeWithAi(
   const craft = scoreDraft(body, languageCode(input.language));
   if (craft.needsRewrite && !opts.signal?.aborted) {
     const retry = await generateText({
-      prompt: [
-        // The instruction has to match the fault. "Keep the format identical — change only the
-        // writing" is right for a stock phrase or a flat rhythm, and is a flat contradiction
-        // when the fault IS the format: it asks the model to fix the shape while forbidding it
-        // from changing the shape. A real generation went round this loop and came back as the
-        // same wall, scored identically, and was discarded — the rewrite ran and could not
-        // possibly have helped.
-        craft.issues.some((i) => i.code === "monotone_shape")
-          ? `Rewrite this so it reads like a person wrote it. Keep the argument and the facts; change the SHAPE. Break it onto separate lines, or turn the middle into three dashed items, or end on a line of four words. Returning another single paragraph is a failed rewrite.`
-          : `Rewrite this so it reads like a person wrote it. Keep the argument, the facts and the format identical — change only the writing.`,
-        ``,
-        rewriteNote(craft),
-        ``,
-        CRAFT_RULES,
-        ``,
-        // The shapes have to travel with the rewrite. Telling a model its draft is a wall of
-        // prose without also showing it the alternatives asks it to invent a structure from a
-        // complaint — and it answers by rewording the same paragraph.
-        POST_SHAPES,
-        ``,
-        // The rewrite is what ships. Almost every draft trips a shape check, so this second
-        // prompt — not the first — decides what a customer reads, and any guidance missing
-        // here is guidance that never reaches the post. DISCOVERY was absent, so hashtags and
-        // buyer keywords were added by the draft and then quietly removed by the rewrite.
-        //
-        // The platform rules go with it for the same reason: LinkedIn wants two or three tags
-        // on their own line and X wants none, and a rewrite that does not know where the post
-        // is going cannot honour either.
-        DISCOVERY,
-        ``,
-        formFor(ctx.platforms.map((p) => p.platform)),
-        ``,
-        `Return ONLY the rewritten text. No preamble, no explanation, no quotes around it.`,
-        ``,
-        `---`,
-        body,
-      ].join("\n"),
-      // The rewrite carries the same salt and heat as the draft. Left on the defaults it
-      // would be the one cached, low-temperature step in a path built to be fresh — and it
-      // is the step whose output actually ships.
+      prompt: buildRewritePrompt(body, craft, ctx, { compact: false }),
+      // The same isolation contract as the main generation. This call had preferProvider
+      // but no promptFor, so a Sarvam-routed rewrite received the full brief — the exact
+      // starvation the compact prompt exists to prevent, on the step whose output ships.
+      promptFor: (name) => (name === "sarvam" ? buildRewritePrompt(body, craft, ctx, { compact: true }) : undefined),
       cacheSalt: `${cacheSalt}:rewrite`,
       temperature: COMPOSE_TEMPERATURE,
       preferProvider: prefer,
