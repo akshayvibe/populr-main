@@ -42,7 +42,13 @@ export default function EarlyAccessBanner() {
   const [hover, setHover] = useState(false);
 
   // Never render on the /app product shell (fixed 100svh layout).
-  const suppressed = path?.startsWith("/app") || path === "/studio/blitz";
+  //
+  // /worked and /account sit outside /app but are just as much inside the product — both
+  // are reached from the dashboard topbar, by someone who has already signed up. Pitching
+  // them early access there reads as an ad in their own account.
+  const suppressed =
+    path?.startsWith("/app") || path?.startsWith("/worked") ||
+    path?.startsWith("/account") || path === "/studio/blitz";
   const hidden = dismissed || suppressed;
 
   // Publish the banner height so sticky sub-navs can offset below it (0 when hidden).

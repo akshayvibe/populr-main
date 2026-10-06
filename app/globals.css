@@ -4489,6 +4489,11 @@ body:has(.studio-light) ::selection{background:#e8ffb0;color:#15171a}
   --acc:#d5ff72;          /* fill only */
   --acc-ink:#4a6b00;      /* the accent where it has to be read */
   --acc-text:var(--acc-ink);
+  /* Same split as the accent, for the same reason. --green stays #3ECF8E because it is
+     correct as a fill and as a status dot; it is 2.0:1 on white, so anywhere it is a
+     WORD the light theme reads this instead. Measured against #ffffff, the lightest
+     surface it lands on — 5.37:1 there, 4.84:1 on --panel2. */
+  --green-ink:#0f7a4e;
   --amberr:#8a5a00;
   --redd:#a8341f;
   background:#ffffff;
@@ -4505,6 +4510,27 @@ body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
 .appui .geo-run:hover:not(:disabled){background:#f1f2f4}
 .appui .topbar{background:#ffffff;border-bottom:1px solid var(--line)}
 /* .brief-rec-go keeps its near-black ink: it sits ON the lime fill, both themes. */
+
+/* Two pages that were written for the dark shell and then joined the light one: the
+   Marketing Assistant and "What actually worked". Both are token-driven apart from the
+   colours below, which were picked by eye against black. Selectors carry .worked /
+   .asst- so they out-specify the originals rather than tying with them. */
+.appui .worked .w-wordmark{color:var(--fg)}
+.appui .worked .w-sort button.on{border-color:var(--green-ink);color:var(--green-ink)}
+.appui .worked .w-pos{color:var(--green-ink)}
+.appui .asst-status .asst-state{color:var(--green-ink)}
+.appui .asst-status .asst-state.off{color:var(--faint)}
+.appui .asst-choice .asst-ready-ready{
+  color:var(--green-ink);border-color:color-mix(in srgb,var(--green-ink) 38%,transparent)}
+.appui .asst-choice .asst-ready-early_access{
+  color:var(--amberr);border-color:color-mix(in srgb,var(--amberr) 38%,transparent)}
+
+/* The way back, shared by both pages — the same row /account already uses. */
+.appui .asst-top{display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:34px}
+.appui .asst-top a{color:var(--dim);text-decoration:none;
+  font-family:'Geist Mono',monospace;font-size:12.5px}
+.appui .asst-top a:hover{color:var(--fg)}
 
 /* The terminal strip reads as a terminal, so it stays dark on purpose — it is the
    one place in the product that is literally a console, and a white console is a

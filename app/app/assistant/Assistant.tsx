@@ -28,6 +28,26 @@ const LAST_STEP: Step = 3;
 
 const PLATFORM_LABEL = Object.fromEntries(PLATFORM_CHOICES.map((p) => [p.platform, p.label])) as Record<SocialPlatform, string>;
 
+// The signed-in product is light (`.appui`); this page was written against the dark shell
+// and never opted in, so it rendered as a black island between /app and /account. The class
+// carries the whole light token set, so the rules below it need no per-page theming.
+//
+// The header row is the same one /account uses. Without it this was a dead end: four
+// questions, no wordmark, and no way back to the dashboard except the browser's Back button.
+function Shell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="appui">
+      <div className="asst-wrap">
+        <div className="asst-top">
+          <a href="/app">← Back to dashboard</a>
+          <span className="app-wordmark">Populr.</span>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function Assistant() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -98,7 +118,7 @@ export default function Assistant() {
     if (d) load();
   }, [send, status?.paused, load]);
 
-  if (loading) return <div className="asst-wrap"><p className="asst-quiet">Loading…</p></div>;
+  if (loading) return <Shell><p className="asst-quiet">Loading…</p></Shell>;
 
   // ---------------------------------------------------------------- Status
   const configured = status?.configured && !editing;
@@ -106,7 +126,7 @@ export default function Assistant() {
   if (configured && status) {
     const early = status.earlyAccessPlatforms;
     return (
-      <div className="asst-wrap">
+      <Shell>
         <section className="asst-status">
           <h1>Marketing Assistant</h1>
           <p className={"asst-state" + (status.paused ? " off" : "")}>
@@ -183,7 +203,7 @@ export default function Assistant() {
             )}
           </div>
         </section>
-      </div>
+      </Shell>
     );
   }
 
@@ -195,7 +215,7 @@ export default function Assistant() {
   const next = () => (step === LAST_STEP ? finish() : setStep((s) => (s + 1) as Step));
 
   return (
-    <div className="asst-wrap">
+    <Shell>
       <section className="asst-setup">
         <p className="asst-step">{step + 1} of 4</p>
 
@@ -282,6 +302,6 @@ export default function Assistant() {
           </button>
         </div>
       </section>
-    </div>
+    </Shell>
   );
 }
