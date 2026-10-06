@@ -99,6 +99,35 @@ describe("the signed-in pages outside /app are light too", () => {
 });
 
 describe("green as a word, not a fill", () => {
+  it("no rule colours text with the raw --green", () => {
+    // The hole in the --acc-text guard above: it matches `var(--acc)` and the literal
+    // #d5ff72, but inside .appui `--green` IS #d5ff72, so the same lime reached text
+    // through an alias the regex never saw. Match `color:` only — `border-color:` and
+    // `background-color:` legitimately keep it.
+    const raw = css.match(/(?<![-a-zA-Z])color:\s*var\(--green\)/gi) ?? [];
+    expect(raw, `${raw.length} rule(s) still colour text with the raw --green`).toHaveLength(0);
+  });
+
+  it("--green-ink is a literal at :root, never an indirection", () => {
+    // :root declares no --green. A custom property substitutes where it is DECLARED, not
+    // where it is used, so `--green-ink:var(--green)` at :root computes to nothing and
+    // then inherits that nothing into .landing — where `color:var(--green-ink)` silently
+    // falls back to the inherited colour. Nothing errors; the text just stops being green.
+    const root = /:root\s*\{[\s\S]*?\}/.exec(css);
+    expect(root, ":root block not found").toBeTruthy();
+    const decl = /--green-ink:\s*([^;]+);/.exec(root![0]);
+    expect(decl, "--green-ink not defined at :root").toBeTruthy();
+    expect(decl![1].trim(), "--green-ink at :root must be a literal").toMatch(/^#[0-9a-f]{6}$/i);
+  });
+
+  it("every light scope redefines it", () => {
+    // A light scope that inherits the dark lime renders it at ~1.3:1 on white.
+    for (const scope of [".studio-light", ".tm", ".missions", ".appui"]) {
+      const block = new RegExp(`\\${scope}\\s*\\{[^}]*--green-ink:\\s*#[0-9a-f]{6}`, "i");
+      expect(css, `${scope} does not redefine --green-ink`).toMatch(block);
+    }
+  });
+
   it("--green-ink clears AA on the lightest surface it lands on", () => {
     // Same split as --acc / --acc-ink. --green (#3ECF8E) is right as a fill and a status
     // dot and about 2:1 on white, so anywhere it is TEXT the light theme reads this.
@@ -111,17 +140,27 @@ describe("green as a word, not a fill", () => {
     };
     const ratio = (a: number, b: number) => (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05);
 
-    const m = /--green-ink:\s*(#[0-9a-f]{6})/i.exec(css);
-    expect(m, "--green-ink not found").toBeTruthy();
-    for (const surface of ["#ffffff", "#fafafa", "#f3f3f3"]) {
-      expect(ratio(lum(m![1]), lum(surface)), `${m![1]} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+    // Every declaration EXCEPT :root's, which is deliberately the dark lime and is
+    // measured against black elsewhere. Taking the first match instead picks up :root
+    // and asserts lime clears AA on white, which it never will.
+    const rootBlock = /:root\s*\{[\s\S]*?\}/.exec(css)![0];
+    const lightInks = (css.match(/--green-ink:\s*#[0-9a-f]{6}/gi) ?? [])
+      .filter((d) => !rootBlock.includes(d))
+      .map((d) => /#[0-9a-f]{6}/i.exec(d)![0]);
+
+    expect(lightInks.length, "no light scope defines --green-ink").toBeGreaterThan(0);
+    for (const ink of lightInks) {
+      for (const surface of ["#ffffff", "#fafafa", "#f3f3f3"]) {
+        expect(ratio(lum(ink), lum(surface)), `${ink} on ${surface}`).toBeGreaterThanOrEqual(4.5);
+      }
     }
   });
 
   it("the light overrides out-specify the rules they replace", () => {
     // `.appui .w-wordmark` would only TIE with `.worked .w-wordmark` (0,2,0 each) and win
     // on source order alone — which is how `.band` lost to `.landing section` before.
-    for (const sel of [".appui .worked .w-wordmark", ".appui .worked .w-pos", ".appui .asst-status .asst-state"]) {
+    // Only the rules --green-ink does not already cover are listed here.
+    for (const sel of [".appui .worked .w-wordmark", ".appui .worked .w-sort button.on"]) {
       expect(css, `${sel} missing`).toContain(sel);
     }
   });

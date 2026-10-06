@@ -15,6 +15,17 @@
      fill. Identical to --acc here, so every dark surface renders exactly as before; the
      light theme redefines this one token instead of shadowing 70-odd selectors. */
   --acc-text:var(--acc);
+  /* Green where it is a WORD rather than a fill or a status dot. This is the dark value
+     and it is the same lime --green carries on every dark surface, so those render
+     exactly as before; each light scope redefines it to ink that clears AA on white.
+     --green itself cannot do this job: inside .appui it is the brand lime (#d5ff72),
+     which is ~1.3:1 on white.
+
+     Written as a literal, not `var(--green)`. :root declares no --green, and a custom
+     property substitutes where it is DECLARED rather than where it is used, so the
+     indirection computes to nothing here and then inherits that nothing into .landing —
+     where `color:var(--green-ink)` silently falls back to the inherited colour. */
+  --green-ink:#d5ff72;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth}
@@ -139,7 +150,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .ob-note{margin-top:14px;font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint)}
 .appui .progress{margin-top:36px;text-align:left;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px 20px;font-family:'Geist Mono',monospace;font-size:12.5px;line-height:2.1}
 .appui .progress .pl{color:var(--dim)}
-.appui .progress .pl.done{color:var(--green)}
+.appui .progress .pl.done{color:var(--green-ink)}
 .appui .progress .pl .spin{display:inline-block;animation:rot 1s linear infinite}
 
 .appui .appshell{height:100svh;display:flex;flex-direction:column;overflow:hidden}
@@ -159,7 +170,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .termstrip{flex:0 0 auto;height:150px;background:#000;border-bottom:1px solid var(--line);overflow:hidden;position:relative}
 .appui .tlog{position:absolute;inset:0;padding:10px 16px;font-family:'Geist Mono',monospace;font-size:12.5px;line-height:1.85;overflow-y:auto;color:var(--dim)}
 .appui .tlog .tl-p{color:var(--acc-text)}
-.appui .tlog .tl-ok{color:var(--green)}
+.appui .tlog .tl-ok{color:var(--green-ink)}
 .appui .term-toggle{position:absolute;top:6px;right:10px;z-index:2;background:transparent;border:0;color:var(--faint);font-family:'Geist Mono',monospace;font-size:11.5px}
 .appui .term-toggle:hover{color:var(--fg)}
 .appui .appshell.term-collapsed .termstrip{height:34px}
@@ -225,7 +236,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .docrow{display:flex;align-items:center;gap:9px;width:100%;background:none;border:0;text-align:left;padding:7px 8px;border-radius:6px;color:var(--fg);font-size:12.5px;font-weight:500}
 .appui .docrow:hover{background:var(--panel)}
 .appui .docrow .di{color:var(--faint);font-family:'Geist Mono',monospace;font-size:11.5px}
-.appui .docrow .new{margin-left:auto;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--green);border:1px solid rgba(62,207,142,.35);border-radius:6px;padding:1px 6px}
+.appui .docrow .new{margin-left:auto;font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;color:var(--green-ink);border:1px solid rgba(62,207,142,.35);border-radius:6px;padding:1px 6px}
 .appui .docrow .cnt{margin-left:auto;color:var(--faint);font-size:11.5px}
 .appui .comp-row{display:flex;align-items:center;gap:8px;padding:6px 8px;font-size:12.5px;color:var(--dim)}
 .appui .comp-row .cdot{width:14px;height:14px;border-radius:6px;display:grid;place-items:center;font-size:10px;font-family:'Geist Mono',monospace}
@@ -249,7 +260,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .stat:last-child{border-right:0}
 .appui .stat .sl{color:var(--faint);font-size:11.5px}
 .appui .stat .sv{font-size:22px;font-weight:600;letter-spacing:-.03em;margin-top:2px}
-.appui .stat .sd{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--green);margin-top:2px}
+.appui .stat .sd{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--green-ink);margin-top:2px}
 .appui .statfoot{display:flex;gap:18px;justify-content:center;border-top:1px solid var(--line);margin-top:14px;padding-top:12px;font-size:11.5px;color:var(--faint)}
 .appui .statfoot b{color:var(--dim);font-weight:600}
 .appui .chartbox{margin-top:8px}
@@ -261,7 +272,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .rankrow:last-child{border-bottom:0}
 .appui .rankpos{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--acc-text);background:rgba(205,166,242,.08);border:1px solid rgba(205,166,242,.25);border-radius:6px;padding:2px 7px;min-width:34px;text-align:center}
 .appui .rankrow .rq{flex:1;color:var(--dim)}
-.appui .rankrow .rt{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--green)}
+.appui .rankrow .rt{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--green-ink)}
 .appui .placeholder{border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center;color:var(--faint);font-size:12.5px;margin-top:14px}
 .appui .gsc-card{display:flex;align-items:center;gap:14px;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:18px;text-decoration:none;transition:border-color .15s,background .15s}
 .appui .gsc-card:hover{border-color:var(--acc);background:var(--panel2)}
@@ -430,7 +441,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .acct-dim{color:var(--dim);font-size:13.5px}
 .appui .acct-plan{font-size:15px;font-weight:600;display:flex;align-items:center;gap:10px;margin-bottom:6px}
 .appui .acct-badge{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border-radius:6px}
-.appui .acct-badge.ok{color:var(--green);border:1px solid rgba(62,207,142,.35);background:rgba(62,207,142,.08)}
+.appui .acct-badge.ok{color:var(--green-ink);border:1px solid rgba(62,207,142,.35);background:rgba(62,207,142,.08)}
 .appui .acct-badge.end{color:var(--amberr);border:1px solid rgba(232,180,90,.35);background:rgba(232,180,90,.08)}
 .appui .acct-meter{height:6px;background:var(--bg);border:1px solid var(--line);border-radius:100px;overflow:hidden;margin-top:12px}
 .appui .acct-meter i{display:block;height:100%;background:var(--acc)}
@@ -559,13 +570,13 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .worked h2{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin:34px 0 12px}
 .worked .w-sort{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
 .worked .w-sort button{font-family:'Geist Mono',monospace;font-size:11.5px;padding:5px 11px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--dim)}
-.worked .w-sort button.on{border-color:var(--green);color:var(--green)}
+.worked .w-sort button.on{border-color:var(--green);color:var(--green-ink)}
 .worked table{width:100%;border-collapse:collapse;font-size:13.5px}
 .worked th{font-family:'Geist Mono',monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
 .worked td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
 .worked .w-chan{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--dim);white-space:nowrap}
 .worked .w-score{font-family:'Geist Mono',monospace;font-weight:500}
-.worked .w-pos{color:var(--green)}
+.worked .w-pos{color:var(--green-ink)}
 .worked .w-neg{color:var(--amberr,#e8b45a)}
 .worked .w-empty{border:1px dashed var(--line);border-radius:14px;padding:28px;color:var(--dim);font-size:13.5px;line-height:1.7}
 .worked .w-note{margin-top:26px;font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);line-height:1.8}
@@ -577,8 +588,16 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .appui .src-sep{margin:0 8px;color:var(--line)}
 .appui .src-opt{background:none;border:0;padding:2px 0;font:inherit;letter-spacing:inherit;color:var(--dim);cursor:pointer;border-bottom:1px solid transparent;transition:color .15s,border-color .15s}
 .appui .src-opt:hover{color:var(--fg)}
-.appui .src-opt.on{color:var(--green);border-bottom-color:rgba(213,255,114,.45)}
-.appui .src-soon{opacity:.45}
+/* The underline marked the selected source in lime, which on white is as invisible as
+   the word used to be — leaving the one selected item with no mark at all. */
+.appui .src-opt.on{color:var(--green-ink);
+  border-bottom-color:color-mix(in srgb,var(--green-ink) 45%,transparent)}
+/* Was opacity:.45 over --faint, which composites to 1.85:1 on white and about the same
+   on black — not quiet, unreadable, in both themes. --faint on its own is already the
+   quietest step in this row (the selectable options are --dim), so the hierarchy this
+   was reaching for survives without the opacity. It is informational text, not a
+   disabled control, so it gets no contrast exemption. */
+.appui .src-soon{color:var(--faint)}
 .appui .src-desc{margin-top:10px}
 .appui .src-desc input{font-size:13.5px}
 @media(max-width:560px){
@@ -605,12 +624,12 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .missions .m-goal:disabled{opacity:.5;cursor:default}
 .missions .m-err{margin-top:12px;font-family:'Geist Mono',monospace;font-size:12.5px;color:var(--amberr,#e8b45a)}
 .missions .m-empty{border:1px dashed var(--line);border-radius:14px;padding:24px;color:var(--dim);font-size:13.5px;line-height:1.7}
-.missions .m-empty a{color:var(--green)}
+.missions .m-empty a{color:var(--green-ink)}
 .missions .m-card{border:1px solid var(--line);border-radius:14px;background:var(--panel);margin-bottom:10px;overflow:hidden}
 .missions .m-card.open{border-color:var(--dim)}
 .missions .m-head{display:flex;align-items:center;gap:12px;width:100%;padding:14px 16px;background:none;border:0;color:inherit;cursor:pointer;text-align:left}
 .missions .m-status{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:6px;border:1px solid var(--line);color:var(--dim)}
-.missions .m-status[data-s="active"]{color:var(--green);border-color:rgba(213,255,114,.4)}
+.missions .m-status[data-s="active"]{color:var(--green-ink);border-color:rgba(213,255,114,.4)}
 .missions .m-status[data-s="completed"]{color:var(--fg)}
 .missions .m-title{font-weight:600;font-size:15px}
 .missions .m-meta{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);margin-left:auto;white-space:nowrap}
@@ -627,10 +646,10 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .missions .m-task{display:flex;gap:10px;align-items:flex-start;padding:9px 11px;border:1px solid var(--line);border-radius:10px;background:transparent;color:inherit;cursor:pointer;text-align:left;transition:border-color .15s}
 .missions .m-task:hover{border-color:var(--dim)}
 .missions .m-task.done{opacity:.55;cursor:default}
-.missions .m-check{font-family:'Geist Mono',monospace;color:var(--green);flex:0 0 auto;padding-top:1px}
+.missions .m-check{font-family:'Geist Mono',monospace;color:var(--green-ink);flex:0 0 auto;padding-top:1px}
 .missions .m-ttitle{display:block;font-size:13.5px;font-weight:500}
 .missions .m-tmeta{display:block;font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);margin-top:2px}
-.missions .m-activate{margin-top:14px;font-family:'Geist Mono',monospace;font-size:12.5px;padding:9px 15px;border-radius:10px;border:1px solid rgba(213,255,114,.4);background:transparent;color:var(--green);cursor:pointer}
+.missions .m-activate{margin-top:14px;font-family:'Geist Mono',monospace;font-size:12.5px;padding:9px 15px;border-radius:10px;border:1px solid rgba(213,255,114,.4);background:transparent;color:var(--green-ink);cursor:pointer}
 .missions .m-note{margin-top:26px;font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--faint);line-height:1.8}
 .missions .m-note a{color:var(--dim)}
 @media(max-width:640px){
@@ -647,7 +666,7 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .missions .m-atype{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--dim);white-space:nowrap;flex:0 0 auto}
 .missions .m-atitle{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .missions .m-astatus{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-left:auto;color:var(--faint);flex:0 0 auto}
-.missions .m-astatus[data-s="approved"]{color:var(--green)}
+.missions .m-astatus[data-s="approved"]{color:var(--green-ink)}
 .missions .m-astatus[data-s="published"]{color:#fff}
 .missions .m-astatus[data-s="archived"],.missions .m-astatus[data-s="rejected"]{opacity:.5}
 .m-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(3px);z-index:60;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -657,12 +676,12 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .m-editor .m-etitle{font-size:18px;font-weight:600;margin:10px 0 8px}
 .m-editor .m-eversions{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
 .m-editor .m-vpill{font-family:'Geist Mono',monospace;font-size:11.5px;padding:3px 9px;border-radius:100px;border:1px solid var(--line);background:transparent;color:var(--dim);cursor:pointer}
-.m-editor .m-vpill.on{border-color:var(--green);color:var(--green)}
+.m-editor .m-vpill.on{border-color:var(--green);color:var(--green-ink)}
 .m-editor .m-ebody{flex:1;min-height:260px;resize:vertical;background:rgba(0,0,0,.25);border:1px solid var(--line);border-radius:10px;color:var(--fg);font-size:13.5px;line-height:1.65;padding:12px 14px;outline:none;font-family:inherit}
 .m-editor .m-ehint{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--amberr,#e8b45a);margin-top:8px}
 .m-editor .m-eactions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
 .m-editor .m-eactions button{font-family:'Geist Mono',monospace;font-size:11.5px;padding:8px 13px;border-radius:10px;border:1px solid var(--line);background:transparent;color:var(--fg);cursor:pointer;transition:border-color .15s}
-.m-editor .m-eactions button:hover:not(:disabled){border-color:var(--green);color:var(--green)}
+.m-editor .m-eactions button:hover:not(:disabled){border-color:var(--green);color:var(--green-ink)}
 .m-editor .m-eactions button:disabled{opacity:.4;cursor:default}
 .m-editor .m-earchive:hover:not(:disabled){border-color:var(--amberr,#e8b45a)!important;color:var(--amberr,#e8b45a)!important}
 @media(max-width:640px){.m-overlay{padding:10px}.m-editor{padding:14px}}
@@ -1634,7 +1653,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 .asst-ready{font-family:'Geist Mono',monospace;font-size:10px;letter-spacing:.08em;
   text-transform:uppercase;padding:2px 7px;border-radius:100px;border:1px solid}
-.asst-ready-ready{color:var(--green);border-color:rgba(62,207,142,.35)}
+.asst-ready-ready{color:var(--green-ink);border-color:rgba(62,207,142,.35)}
 .asst-ready-early_access{color:#e0b341;border-color:rgba(224,179,65,.35)}
 
 .asst-nav{display:flex;align-items:center;gap:12px;margin-top:28px}
@@ -1646,7 +1665,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   background:none;color:var(--dim);font-size:14.5px}
 .asst-back:hover,.asst-secondary:hover{color:var(--fg)}
 
-.asst-state{display:flex;align-items:center;gap:9px;font-size:16px;color:var(--green);margin:0 0 32px}
+.asst-state{display:flex;align-items:center;gap:9px;font-size:16px;color:var(--green-ink);margin:0 0 32px}
 .asst-state.off{color:var(--faint)}
 
 .asst-facts{display:flex;flex-direction:column;gap:0;margin:0 0 30px}
@@ -1685,7 +1704,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 
 .home-facts{list-style:none;margin:0 0 18px;padding:0;display:flex;flex-direction:column;gap:7px}
 .home-facts li{display:flex;align-items:center;gap:9px;font-size:14.5px;color:var(--dim)}
-.home-facts li span{color:var(--green);font-size:13px}
+.home-facts li span{color:var(--green-ink);font-size:13px}
 
 .home-needs{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
   padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);margin-bottom:20px}
@@ -1724,7 +1743,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 /* Wraps rather than nowrap: a hint long enough to need two lines is better stacked than
    pushing the row's buttons off a phone screen, which is what nowrap did here. */
 .conn-hint{font-style:normal;font-size:11px;line-height:1.25;color:var(--faint);text-align:right}
-.conn-connected{color:var(--green)}
+.conn-connected{color:var(--green-ink)}
 .conn-linked_not_live{color:#e0b341}
 /* Paused shares the amber of linked-but-not-live: both mean "real connection, nothing goes
    out". Pro is the accent — it is the one row state that is an offer rather than a warning. */
@@ -1781,7 +1800,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
 .refer-pips span{width:26px;height:5px;border-radius:100px;background:var(--line)}
 .refer-pips span.on{background:var(--acc)}
 .refer-count{font-size:13px;color:var(--dim)}
-.refer-earned{margin:12px 0 0;font-size:13.5px;color:var(--green)}
+.refer-earned{margin:12px 0 0;font-size:13.5px;color:var(--green-ink)}
 .refer-earned strong{font-weight:600}
 .refer-fine{margin:14px 0 0;font-size:12px;color:var(--faint);line-height:1.5}
 
@@ -3880,6 +3899,7 @@ html{scroll-padding-top:var(--eab-h,0px)}
   --faint:#6a7075;
   --line:#e7e8ea;
   --acc:#d5ff72;           /* kept, but only as a fill — see --acc-ink */
+  --green-ink:#0f7a4e;   /* green as a word — 5.37:1 on white */
   /* Lime is unreadable as text on white (≈1.3:1). Anything that used the accent
      for text, icons or focus uses this instead; it is the same hue, taken down
      to a contrast that passes. */
@@ -4511,17 +4531,16 @@ body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
 .appui .topbar{background:#ffffff;border-bottom:1px solid var(--line)}
 /* .brief-rec-go keeps its near-black ink: it sits ON the lime fill, both themes. */
 
-/* Two pages that were written for the dark shell and then joined the light one: the
-   Marketing Assistant and "What actually worked". Both are token-driven apart from the
-   colours below, which were picked by eye against black. Selectors carry .worked /
-   .asst- so they out-specify the originals rather than tying with them. */
+/* Two pages written for the dark shell that then joined the light one: the Marketing
+   Assistant and "What actually worked". Their text colours now come from --green-ink
+   like everywhere else; what is left here is the rest of what was picked by eye against
+   black — a literal #fff wordmark, and borders still carrying the dark mint and amber
+   alongside text that is no longer either. Selectors carry .worked / .asst- so they
+   out-specify the originals rather than tying with them. */
 .appui .worked .w-wordmark{color:var(--fg)}
-.appui .worked .w-sort button.on{border-color:var(--green-ink);color:var(--green-ink)}
-.appui .worked .w-pos{color:var(--green-ink)}
-.appui .asst-status .asst-state{color:var(--green-ink)}
-.appui .asst-status .asst-state.off{color:var(--faint)}
+.appui .worked .w-sort button.on{border-color:var(--green-ink)}
 .appui .asst-choice .asst-ready-ready{
-  color:var(--green-ink);border-color:color-mix(in srgb,var(--green-ink) 38%,transparent)}
+  border-color:color-mix(in srgb,var(--green-ink) 38%,transparent)}
 .appui .asst-choice .asst-ready-early_access{
   color:var(--amberr);border-color:color-mix(in srgb,var(--amberr) 38%,transparent)}
 
@@ -4650,6 +4669,7 @@ body:has(.appui) ::selection{background:#e8ffb0;color:#15171a}
   --edge:#e7e8ea;
   --acc:#d5ff72;          /* fill only */
   --acc-ink:#4a6b00;
+  --green-ink:#0f7a4e;   /* green as a word — 5.37:1 on white */
   --acc-text:var(--acc-ink);
   --amberr:#8a5a00;
   --redd:#a8341f;
@@ -4677,6 +4697,7 @@ body:has(.tm) ::selection{background:#e8ffb0;color:#15171a}
   --fg:#15171a; --dim:#5c6165; --faint:#6a7075;
   --line:#e7e8ea; --edge:#e7e8ea; --edge-strong:#d6d8dc;
   --acc:#d5ff72; --acc-ink:#4a6b00; --acc-text:var(--acc-ink);
+  --green-ink:#0f7a4e;   /* green as a word — 5.37:1 on white */
   --amberr:#8a5a00; --redd:#a8341f;
   background:#ffffff; color:var(--fg); min-height:100vh;
 }
