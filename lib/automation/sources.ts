@@ -36,6 +36,15 @@ export type ResolveDeps = {
   topic: string;
   audience: string;
   now: number;
+  /**
+   * The caller's deadline, so a generation cannot outlive the function running it.
+   *
+   * Without this the only ceiling on a slot was the provider's own timeout, which is 45s
+   * shared and 120s for the specialist — both measured against a 60s function. The runner's
+   * budget check sits between slots and cannot interrupt one already in flight, so a single
+   * slow call took the whole pass down with it.
+   */
+  signal?: AbortSignal;
 };
 
 /** The oldest draft that can go to this platform. Drafts are consumed oldest-first. */
@@ -136,7 +145,11 @@ async function fromAiQueue(slot: QueueItem, deps: ResolveDeps): Promise<Resolved
   }, {
     // The queue. Nobody is watching this one, so a slow provider that writes better copy
     // is the right trade — which is the opposite of the trade a composer would make.
+    //
+    // "Slow" still has to mean slower than a person would wait, not longer than the
+    // function lives. The caller's deadline is what draws that line.
     mode: "background",
+    signal: deps.signal,
   }).catch(() => null);
 
   if (!result) return null;

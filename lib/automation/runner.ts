@@ -117,6 +117,12 @@ export type RunOptions = {
   budgetMs?: number;
   /** Brand/market context handed to the optimiser. Assembled by the caller. */
   contextPrompt?: string;
+  /**
+   * Fires when the caller's deadline passes. budgetMs stops this loop STARTING a slot;
+   * this is how a slot already in flight finds out, and the only reason the distinction
+   * matters here is the failure note — an abandoned generation is not missing content.
+   */
+  signal?: AbortSignal;
   /** Already-scheduled text, so the pipeline can catch a duplicate before it posts. */
   scheduledTexts?: string[];
   /** Called with the pipeline result for each slot, for logging and Learning. */
@@ -197,7 +203,14 @@ export async function runDue(
     }
 
     if (!body || !body.text.trim()) {
-      const message = "No content was available for this slot.";
+      // Two different things look identical here. A slot whose source genuinely had nothing
+      // to give is a content problem the founder may need to act on; a slot we abandoned
+      // because the pass ran out of time is ours, and saying "no content was available"
+      // sends someone looking at their drafts for a fault that is not there. Both land in
+      // `failed`, which retryFailed picks back up — only the sentence differs.
+      const message = opts.signal?.aborted
+        ? "This pass ran out of time before the post was written. It will be retried."
+        : "No content was available for this slot.";
       const r = setState(working, slot.id, "failed", message);
       working = r.queue;
       outcomes.push({ slotId: slot.id, ok: false, jobId: null, state: "failed", message });

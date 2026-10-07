@@ -64,6 +64,20 @@ export async function GET(req: NextRequest) {
 
   const report: { tenant: string; published: number; failed: number; retried: number; extended: number }[] = [];
 
+  // One deadline for the whole request, and the thing that enforces it.
+  //
+  // It was only ever advisory: checked between tenants and between slots, while the one
+  // step that actually takes tens of seconds — the model call — ran to the provider's own
+  // timeout. That is 45s shared and 120s for the specialist, inside a 60s function, so one
+  // slot could outlive the request. The function was killed mid-flight, the gateway
+  // answered 504, and the slot was left stranded in `publishing` for reclaimStalled to find.
+  // Cancelling instead means the pass returns what it managed, on time.
+  //
+  // Declared out here so `finally` can clear the timer.
+  const deadline = now + 45_000;
+  const abort = new AbortController();
+  const abortTimer = setTimeout(() => abort.abort(), Math.max(0, deadline - Date.now()));
+
   try {
     // No feature gate here.
     //
@@ -81,7 +95,6 @@ export async function GET(req: NextRequest) {
     // hundred, inside a sixty-second function. The remaining time is what each tenant gets,
     // and when it is gone the loop stops and reports how far it reached. Nothing is lost —
     // unstarted slots stay `upcoming` and the next pass is ten minutes away.
-    const deadline = now + 45_000;
     let skippedTenants = 0;
 
     for (const tenant of await repo.activeTenants()) {
@@ -139,6 +152,7 @@ export async function GET(req: NextRequest) {
         // Whatever is left of the request, so a slow first tenant cannot starve the rest by
         // being killed rather than yielding.
         budgetMs: Math.max(0, deadline - Date.now()),
+        signal: abort.signal,
         scheduledTexts,
         onOptimized: (slotId, result) => {
           scheduledTexts.push(result.optimization.optimized.text);
@@ -169,6 +183,7 @@ export async function GET(req: NextRequest) {
             }),
             audience,
             now,
+            signal: abort.signal,
           });
           if (resolved) provenance.set(slot.id, resolved);
 
@@ -238,11 +253,23 @@ export async function GET(req: NextRequest) {
     // `skipped` is reported rather than swallowed: a pass that ran out of time looks
     // identical to a quiet one in the response body, and the workflow's own comment already
     // warns that a green run does not mean anything published.
-    if (skippedTenants) {
-      console.warn(JSON.stringify({ event: "publish_budget_exhausted", skippedTenants, dispatched }));
+    if (skippedTenants || abort.signal.aborted) {
+      console.warn(JSON.stringify({
+        event: "publish_budget_exhausted", skippedTenants, dispatched,
+        // Distinct from skippedTenants: that counts tenants never started, this says a
+        // generation was cut off mid-write. A pass can do one, both or neither.
+        cancelled: abort.signal.aborted,
+      }));
     }
-    return NextResponse.json({ ok: true, at: now, tenants: report.length, dispatched, skippedTenants, report });
+    return NextResponse.json({
+      ok: true, at: now, tenants: report.length, dispatched, skippedTenants,
+      outOfTime: abort.signal.aborted, report,
+    });
   } catch (e) {
     return NextResponse.json({ error: "cron_failed", detail: String(e).slice(0, 200) }, { status: 503 });
+  } finally {
+    // Otherwise the timer holds the function alive to the deadline on every quiet pass —
+    // most passes have nothing due and should finish in milliseconds.
+    clearTimeout(abortTimer);
   }
 }

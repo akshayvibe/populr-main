@@ -64,6 +64,19 @@ describe("the pass yields rather than being killed", () => {
     schedule: async () => ({ id: "j", state: "scheduled" }),
   } as unknown as PublishPort);
 
+  // The budget tests above never reach `content`, so an empty account list is fine for
+  // them. The two below are about what happens AFTER content is requested, and preflight
+  // fails a slot with no connected account before that — deliberately, so a tenant with
+  // nothing connected never pays for a model call.
+  const connected = (): PublishPort => ({
+    listAccounts: async () => [{
+      id: "acc_1", tenant: "t", platform: "linkedin", handle: "@populr",
+      externalId: "li1", status: "connected", tokenExpiresAt: null, connectedAt: NOW,
+    }],
+    schedule: async () => ({ id: "j", state: "scheduled" }),
+    publishNow: async () => ({ id: "job_1", state: "published", error: null }),
+  } as unknown as PublishPort);
+
   it("stops starting slots once the budget is spent", async () => {
     // Twenty-five due slots, each needing generation, do not fit in a 60s function. Being
     // terminated mid-loop is what stranded claims in the first place.
@@ -78,5 +91,39 @@ describe("the pass yields rather than being killed", () => {
     const queue = Array.from({ length: 5 }, (_, i) => slot({ id: `q${i}`, at: NOW - 1000 }));
     const r = await runDue(queue, "t", { now: NOW, engine: port(), budgetMs: 0, content: async () => null });
     expect(r.queue.filter((q) => q.state === "upcoming")).toHaveLength(5);
+  });
+
+  // The budget stops the loop STARTING a slot. It cannot interrupt one already in flight,
+  // and the one step that takes tens of seconds is the model call — 45s on the shared
+  // timeout, 120s for the specialist, inside a 60s function. So a single slot outlived the
+  // request: killed mid-write, 504 at the gateway, claim stranded. The deadline only means
+  // anything if it reaches the generation.
+  it("a slot already in flight is told the deadline passed", async () => {
+    let sawSignal: AbortSignal | undefined;
+    const abort = new AbortController();
+    const r = await runDue([slot()], "t", {
+      now: NOW, engine: connected(), budgetMs: 10_000, signal: abort.signal,
+      content: async () => {
+        // Stand-in for the model call: it is running when the deadline passes.
+        abort.abort();
+        sawSignal = abort.signal;
+        return null;
+      },
+    });
+    expect(sawSignal?.aborted, "the generation never learned the pass was over").toBe(true);
+    // Still `failed`, so retryFailed picks it up on the usual backoff — what changes is
+    // that the queue says whose fault it was.
+    expect(r.queue[0].state).toBe("failed");
+    expect(r.outcomes[0].message).toMatch(/ran out of time/i);
+  });
+
+  it("a slot with genuinely no content still says so", async () => {
+    // The other half of the same branch: without a deadline in play, an empty source is a
+    // content problem the founder may need to act on, and must not be dressed up as ours.
+    const r = await runDue([slot()], "t", {
+      now: NOW, engine: connected(), budgetMs: 10_000, content: async () => null,
+    });
+    expect(r.queue[0].state).toBe("failed");
+    expect(r.outcomes[0].message).toMatch(/no content was available/i);
   });
 });
